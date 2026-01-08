@@ -34,16 +34,20 @@ const validateLogInfo = async (req, res, next) => {
 
 // Middleware for validating resignation information
 const validateResignInfo = async (req, res, next) => {
-    try {
-        const { error } = validateResignData.validate({ empId: req.user.id, ...req.body });
-        if (error) {
-            return res.status(400).send({ message: error.details[0].message });
-        }
-        next();
-    } catch (err) {
-        res.status(500).send({ message: err.message });
+  try {
+    const { error } = validateResignData.validate({
+      empId: req.user._id,
+      ...req.body
+    });
+    if (error) {
+      return res.status(400).send({ message: error.details[0].message });
     }
+    next();
+  } catch (err) {
+    res.status(500).send({ message: err.message });
+  }
 };
+
 
 // Authentication middleware
 const auth = async (req, res, next) => {

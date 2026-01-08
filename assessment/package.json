@@ -1,11 +1,10 @@
 {
   "name": "exitease",
   "version": "1.0.0",
-  "type": "module",
   "description": "",
   "main": "cypress.config.js",
   "scripts": {
-    "start": "node server.js",
+    "test": "cypress run",
     "db:reset": "node dbReset.js",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run"
