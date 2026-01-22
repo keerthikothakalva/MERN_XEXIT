@@ -1,39 +1,33 @@
 const router = require('express').Router();
-const {
-    validateRegInfo,
-    validateLogInfo,
-    validateResignInfo,
-    auth
-} = require('../middlewares/employee.middleware.js');
-const {
-    registerNewUser,
-    loginUser,
-    newUserResign,
-    deleteResign
-} = require('../controllers/employee.controller.js');
 
-// Auth routes
-router.post('/auth/register', validateRegInfo, registerNewUser);
-router.post('/auth/login', validateLogInfo, loginUser);
+const {
+  validateRegInfo,
+  validateLogInfo,
+  validateResignInfo,
+  auth
+} = require('../middlewares/employee.middleware');
 
-// Resignation routes
+const {
+  registerNewUser,
+  loginUser,
+  newUserResign,
+  deleteResign,
+  submitExitResponses     
+} = require('../controllers/employee.controller');
+
+// ---------- AUTH ROUTES ----------
+router.post('/register', validateRegInfo, registerNewUser);
+router.post('/login', validateLogInfo, loginUser);
+
+// ---------- EMPLOYEE ROUTES ----------
+router.post('/resign', auth, validateResignInfo, newUserResign);
+router.delete('/resign', auth, deleteResign);
+
+// ---------- EXIT QUESTIONNAIRE ----------
 router.post(
-    '/user/resign',
-    auth,
-    (req, res, next) => {
-        // FIX: ensure empId exists for validator
-        req.body.empId = req.user._id;
-        next();
-    },
-    validateResignInfo,
-    newUserResign
+  '/responses',
+  auth,
+  submitExitResponses
 );
-
-router.delete('/user/resign', auth, deleteResign);
-
-// Exit questionnaire (Cypress requires this)
-router.post('/user/responses', auth, async (req, res) => {
-    return res.status(200).send({ message: 'Responses saved' });
-});
 
 module.exports = router;

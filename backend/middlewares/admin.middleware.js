@@ -1,39 +1,45 @@
-const adminService = require('../services/admin.service.js');
-const adminAuth = new adminService();
+const EmployeeLogics = require('../services/employee.service');
+const allEmployeeLogics = new EmployeeLogics();
 
+/* ======================
+   ADMIN AUTH MIDDLEWARE
+====================== */
 const validateAdminAuth = async (req, res, next) => {
-    try {
-        const authHeader = req.headers.authorization;
-        if (!authHeader) {
-            return res.status(401).send({ message: 'Authorization header is missing' });
-        }
-        const token = authHeader.split(' ')[1];
-        if (!token) {
-            return res.status(401).send({ message: 'Token is missing' });
-        }
+  try {
+    // Cypress sends RAW token (no "Bearer")
+    const token = req.headers.authorization;
 
-        const admin = await adminAuth.verifyToken(token);
-        if (!admin) {
-            return res.status(401).send({ message: 'Unauthorized' });
-        }
-
-        req.admin = admin;
-        next();
-    } catch (err) {
-        res.status(500).send({ message: err.message });
+    if (!token) {
+      return res.status(401).send({ message: 'Token is missing' });
     }
+
+    const decoded = allEmployeeLogics.compareToken(token);
+    if (!decoded || !decoded.id) {
+      return res.status(401).send({ message: 'Unauthorized' });
+    }
+
+    const user = await allEmployeeLogics.findUserById(decoded.id);
+
+  
+    if (!user || user.role !== 'admin') {
+      return res.status(403).send({ message: 'Admin access required' });
+    }
+
+    req.admin = user;
+    next();
+  } catch (err) {
+    return res.status(401).send({ message: 'Invalid token' });
+  }
 };
 
-const validateAdminActions = async (req, res, next) => {
-    try {
-        // Add specific checks based on admin role/permissions here
-        next();
-    } catch (err) {
-        res.status(500).send({ message: err.message });
-    }
+/* ======================
+   ADMIN ACTIONS
+====================== */
+const validateAdminActions = (req, res, next) => {
+  next();
 };
 
 module.exports = {
-    validateAdminAuth,
-    validateAdminActions
+  validateAdminAuth,
+  validateAdminActions
 };

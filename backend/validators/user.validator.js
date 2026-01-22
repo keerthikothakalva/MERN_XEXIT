@@ -11,7 +11,7 @@ const validateLoginUser = Joi.object({
 });
 
 const validateResignData = Joi.object({
-    empId: Joi.string().required(),
+    
     lwd: Joi.string().required()
 });
 

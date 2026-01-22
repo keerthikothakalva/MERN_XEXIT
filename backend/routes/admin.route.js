@@ -1,31 +1,32 @@
 const router = require('express').Router();
-const {
-    validateAdminAuth,
-    validateAdminActions
-} = require('../middlewares/admin.middleware.js');
-const {
-    getAllUsers,
-    approveResignation,
-    deleteUser
-} = require('../controllers/admin.controller.js');
 
-// Admin routes (Cypress compatible)
-router.get('/users', validateAdminAuth, getAllUsers);
+const {
+  validateAdminAuth,
+  validateAdminActions
+} = require('../middlewares/admin.middleware');
 
-// FIX 1: must be PUT, not POST
+const {
+  getAllResignations,
+  concludeResignation,
+  getExitResponses
+} = require('../controllers/admin.controller');
+
+// View all resignations
+router.get('/resignations', validateAdminAuth, getAllResignations);
+
+// Approve / Reject resignation
 router.put(
-    '/resign/approve',
-    validateAdminAuth,
-    validateAdminActions,
-    approveResignation
+  '/conclude_resignation',
+  validateAdminAuth,
+  validateAdminActions,
+  concludeResignation
 );
 
-// FIX 2: consistent route path
-router.delete(
-    '/user/delete/:id',
-    validateAdminAuth,
-    validateAdminActions,
-    deleteUser
+// View exit questionnaire responses
+router.get(
+  '/exit_responses',
+  validateAdminAuth,
+  getExitResponses
 );
 
 module.exports = router;

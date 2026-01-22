@@ -1,42 +1,70 @@
 const Employee = require('../models/employee.model');
 const ResignInfo = require('../models/resign.model');
+const ExitResponse = require("../models/exitResponse.model");
 
-const getAllUsers = async (req, res) => {
-    try {
-        const users = await Employee.find();
-        res.status(200).send(users);
-    } catch (err) {
-        res.status(500).send({ message: err.message });
-    }
+// =====================
+// GET ALL RESIGNATIONS
+// =====================
+const getAllResignations = async (req, res) => {
+  try {
+    const resignations = await ResignInfo.find();
+
+    return res.status(200).send({
+      data: resignations.map(r => ({
+        _id: r._id,
+        empId: r.empId,
+        lwd: r.lwd,
+        status: r.status
+      }))
+    });
+  } catch (err) {
+    return res.status(500).send({ message: err.message });
+  }
 };
 
-const approveResignation = async (req, res) => {
-    try {
-        const { resignationId, approved } = req.body;
+// =====================
+// APPROVE / REJECT RESIGNATION
+// =====================
+const concludeResignation = async (req, res) => {
+  try {
+    const { resignationId, approved, lwd } = req.body;
 
-        const updated = await ResignInfo.findByIdAndUpdate(
-            resignationId,
-            { status: approved },
-            { new: true }
-        );
+    const updatePayload = {
+      status: approved ? 'approved' : 'rejected'
+    };
 
-        res.status(200).send(updated);
-    } catch (err) {
-        res.status(500).send({ message: err.message });
+    if (approved && lwd) {
+      updatePayload.lwd = lwd;
     }
+
+    await ResignInfo.findByIdAndUpdate(resignationId, updatePayload);
+
+    return res.status(200).send({
+      message: 'Resignation updated successfully'
+    });
+  } catch (err) {
+    return res.status(500).send({ message: err.message });
+  }
 };
 
-const deleteUser = async (req, res) => {
-    try {
-        await Employee.findByIdAndDelete(req.params.id);
-        res.status(200).send({ message: 'User deleted successfully' });
-    } catch (err) {
-        res.status(500).send({ message: err.message });
-    }
+// =====================
+// GET EXIT QUESTIONNAIRE RESPONSES
+// =====================
+const getExitResponses = async (req, res) => {
+  try {
+    const responses = await ExitResponse.find();
+
+    return res.status(200).send({
+      data: responses
+    });
+  } catch (err) {
+    return res.status(500).send({ message: err.message });
+  }
 };
 
 module.exports = {
-    getAllUsers,
-    approveResignation,
-    deleteUser
+  getAllResignations,
+  concludeResignation,
+  getExitResponses
 };
+

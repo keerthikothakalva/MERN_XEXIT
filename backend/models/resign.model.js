@@ -1,23 +1,26 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
 
-const resignSchema = new mongoose.Schema({
-    empId:{
-        type:String,
-        required:true
+const resignSchema = new mongoose.Schema(
+  {
+    employeeId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Employee',
+      required: true
     },
-    lwd:{
-        type:String,
-        required:true
+
+    // Cypress sends LWD as STRING: "YYYY-MM-DD"
+    lwd: {
+      type: String,
+      required: true
     },
-    reason:{
-        type:String,
-        required:true
-    },
-    status:{
-        type:String,
-        default:"pending"
+
+    status: {
+      type: String,
+      enum: ['pending', 'approved', 'rejected'],
+      default: 'pending'
     }
-},{timestamps:true})
+  },
+  { timestamps: true }
+);
 
-const ResignInfo = mongoose.model('ResignInfo',resignSchema);
-module.exports = ResignInfo;
+module.exports = mongoose.model('ResignInfo', resignSchema);

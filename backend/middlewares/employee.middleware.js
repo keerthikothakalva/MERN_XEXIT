@@ -1,81 +1,82 @@
 const {
-    validateRegisterUser,
-    validateLoginUser,
-    validateResignData
+  validateRegisterUser,
+  validateLoginUser,
+  validateResignData
 } = require('../validators/user.validator.js');
-const employeeLogics = require('../services/employee.service');
-const allEmployeeLogics = new employeeLogics();
 
-// Middleware for validating registration information
-const validateRegInfo = async (req, res, next) => {
-    try {
-        const { error } = validateRegisterUser.validate(req.body);
-        if (error) {
-            return res.status(400).send({ message: error.details[0].message });
-        }
-        next();
-    } catch (err) {
-        res.status(500).send({ message: err.message });
-    }
+const EmployeeLogics = require('../services/employee.service');
+const allEmployeeLogics = new EmployeeLogics();
+
+/* ======================
+   REGISTER VALIDATION
+====================== */
+const validateRegInfo = (req, res, next) => {
+  const { error } = validateRegisterUser.validate(req.body);
+  if (error) {
+    return res.status(400).send({ message: error.details[0].message });
+  }
+  next();
 };
 
-// Middleware for validating login information
-const validateLogInfo = async (req, res, next) => {
-    try {
-        const { error } = validateLoginUser.validate(req.body);
-        if (error) {
-            return res.status(400).send({ message: error.details[0].message });
-        }
-        next();
-    } catch (err) {
-        res.status(500).send({ message: err.message });
-    }
+/* ======================
+   LOGIN VALIDATION
+====================== */
+const validateLogInfo = (req, res, next) => {
+  const { error } = validateLoginUser.validate(req.body);
+  if (error) {
+    return res.status(400).send({ message: error.details[0].message });
+  }
+  next();
 };
 
-// Middleware for validating resignation information
-const validateResignInfo = async (req, res, next) => {
+/* ======================
+   AUTH MIDDLEWARE
+====================== */
+const auth = async (req, res, next) => {
   try {
-    const { error } = validateResignData.validate({
-      empId: req.user._id,
-      ...req.body
-    });
-    if (error) {
-      return res.status(400).send({ message: error.details[0].message });
+    const token = req.headers.authorization;
+    if (!token) {
+      return res.status(401).send({ message: 'Token is missing' });
     }
+
+    const decoded = allEmployeeLogics.compareToken(token);
+    if (!decoded || !decoded.id) {
+      return res.status(401).send({ message: 'Unauthorized' });
+    }
+
+    const user = await allEmployeeLogics.findUserById(decoded.id);
+    if (!user) {
+      return res.status(401).send({ message: 'User not found' });
+    }
+
+    
+    req.user = user;
+    req.user.isAdmin = user.role === 'admin'; 
+
     next();
   } catch (err) {
-    res.status(500).send({ message: err.message });
+    return res.status(401).send({ message: 'Invalid token' });
   }
 };
 
 
-// Authentication middleware
-const auth = async (req, res, next) => {
-    try {
-        const authHeader = req.headers.authorization;
-        if (!authHeader) {
-            return res.status(401).send({ message: 'Authorization header is missing' });
-        }
-        const token = authHeader.split(' ')[1];
-        if (!token) {
-            return res.status(401).send({ message: 'Token is missing' });
-        }
+/* ======================
+   RESIGN VALIDATION
+====================== */
+const validateResignInfo = (req, res, next) => {
+  // ✅ Cypress sends ONLY { lwd }
+  const { error } = validateResignData.validate(req.body);
 
-        const user = await allEmployeeLogics.compareToken(token);
-        if (!user) {
-            return res.status(401).send({ message: 'Unauthorized' });
-        }
+  if (error) {
+    return res.status(400).send({ message: error.details[0].message });
+  }
 
-        req.user = await allEmployeeLogics.findUserById(user);
-        next();
-    } catch (err) {
-        return res.status(500).send({ message: err.message });
-    }
+  next();
 };
 
 module.exports = {
-    validateRegInfo,
-    validateLogInfo,
-    validateResignInfo,
-    auth
+  validateRegInfo,
+  validateLogInfo,
+  validateResignInfo,
+  auth
 };
