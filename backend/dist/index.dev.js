@@ -9,22 +9,14 @@ var connectMongoDB = require('./config/config.js');
 require('dotenv').config();
 
 var app = express();
-var PORT = process.env.PORT || 3001; // =====================
-// MIDDLEWARE
-// =====================
-
+var PORT = process.env.PORT || 3001;
 app.use(cors());
-app.use(express.json()); // =====================
-// ROOT (CYPRESS CHECK)
-// =====================
-
+app.use(express.json());
 app.get('/', function (req, res) {
-  return res.status(200).send({
+  return res.status(200).json({
     message: 'Server is running'
   });
-}); // =====================
-// ROUTES (CORRECTLY SEPARATED)
-// =====================
+});
 
 var authRouter = require('./routes/auth.route.js');
 
@@ -34,15 +26,14 @@ var adminRouter = require('./routes/admin.route.js');
 
 app.use('/api/auth', authRouter);
 app.use('/api/user', employeeRouter);
-app.use('/api/admin', adminRouter); // =====================
-// DB CONNECTION
-// =====================
+app.use('/api/admin', adminRouter);
+connectMongoDB(); //  CRITICAL FOR TESTS
 
-connectMongoDB(); // =====================
-// START SERVER
-// =====================
+if (require.main === module) {
+  app.listen(PORT, function () {
+    console.log("Backend is listening on PORT ".concat(PORT));
+  });
+}
 
-app.listen(PORT, function () {
-  console.log("Backend is listening on PORT ".concat(PORT));
-});
+module.exports = app;
 //# sourceMappingURL=index.dev.js.map

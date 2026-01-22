@@ -3,9 +3,6 @@
 var EmployeeLogics = require('../services/employee.service');
 
 var allEmployeeLogics = new EmployeeLogics();
-/* ======================
-   ADMIN AUTH MIDDLEWARE
-====================== */
 
 var validateAdminAuth = function validateAdminAuth(req, res, next) {
   var token, decoded, user;
@@ -14,7 +11,6 @@ var validateAdminAuth = function validateAdminAuth(req, res, next) {
       switch (_context.prev = _context.next) {
         case 0:
           _context.prev = 0;
-          // Cypress sends RAW token (no "Bearer")
           token = req.headers.authorization;
 
           if (token) {
@@ -22,8 +18,8 @@ var validateAdminAuth = function validateAdminAuth(req, res, next) {
             break;
           }
 
-          return _context.abrupt("return", res.status(401).send({
-            message: 'Token is missing'
+          return _context.abrupt("return", res.status(401).json({
+            message: 'Unauthorized'
           }));
 
         case 4:
@@ -34,7 +30,7 @@ var validateAdminAuth = function validateAdminAuth(req, res, next) {
             break;
           }
 
-          return _context.abrupt("return", res.status(401).send({
+          return _context.abrupt("return", res.status(401).json({
             message: 'Unauthorized'
           }));
 
@@ -50,7 +46,7 @@ var validateAdminAuth = function validateAdminAuth(req, res, next) {
             break;
           }
 
-          return _context.abrupt("return", res.status(403).send({
+          return _context.abrupt("return", res.status(403).json({
             message: 'Admin access required'
           }));
 
@@ -63,8 +59,8 @@ var validateAdminAuth = function validateAdminAuth(req, res, next) {
         case 16:
           _context.prev = 16;
           _context.t0 = _context["catch"](0);
-          return _context.abrupt("return", res.status(401).send({
-            message: 'Invalid token'
+          return _context.abrupt("return", res.status(401).json({
+            message: 'Unauthorized'
           }));
 
         case 19:
@@ -74,10 +70,6 @@ var validateAdminAuth = function validateAdminAuth(req, res, next) {
     }
   }, null, null, [[0, 16]]);
 };
-/* ======================
-   ADMIN ACTIONS
-====================== */
-
 
 var validateAdminActions = function validateAdminActions(req, res, next) {
   next();

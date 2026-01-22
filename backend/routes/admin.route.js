@@ -1,9 +1,10 @@
-const router = require('express').Router();
+const express = require('express');
+const router = express.Router();
 
 const {
   validateAdminAuth,
   validateAdminActions
-} = require('../middlewares/admin.middleware');
+} = require('../middlewares/adminAuth');
 
 const {
   getAllResignations,
@@ -11,22 +12,9 @@ const {
   getExitResponses
 } = require('../controllers/admin.controller');
 
-// View all resignations
+
 router.get('/resignations', validateAdminAuth, getAllResignations);
-
-// Approve / Reject resignation
-router.put(
-  '/conclude_resignation',
-  validateAdminAuth,
-  validateAdminActions,
-  concludeResignation
-);
-
-// View exit questionnaire responses
-router.get(
-  '/exit_responses',
-  validateAdminAuth,
-  getExitResponses
-);
+router.post('/resignations/approve', validateAdminAuth, validateAdminActions, concludeResignation);
+router.get('/exit-responses', validateAdminAuth, getExitResponses);
 
 module.exports = router;
