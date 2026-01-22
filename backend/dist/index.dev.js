@@ -27,7 +27,7 @@ var adminRouter = require('./routes/admin.route.js');
 app.use('/api/auth', authRouter);
 app.use('/api/user', employeeRouter);
 app.use('/api/admin', adminRouter);
-connectMongoDB(); //  CRITICAL FOR TESTS
+connectMongoDB(); //  REQUIRED FOR ASSESSMENT
 
 if (require.main === module) {
   app.listen(PORT, function () {

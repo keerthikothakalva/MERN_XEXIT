@@ -1,10 +1,9 @@
+
 const EmployeeLogics = require('../services/employee.service');
 const allEmployeeLogics = new EmployeeLogics();
 
-
 const validateAdminAuth = async (req, res, next) => {
   try {
-    
     const token = req.headers.authorization;
 
     if (!token) {
@@ -24,11 +23,10 @@ const validateAdminAuth = async (req, res, next) => {
 
     req.admin = user;
     next();
-  } catch {
+  } catch (err) {
     return res.status(401).json({ message: 'Unauthorized' });
   }
 };
-
 
 const validateAdminActions = (req, res, next) => {
   next();

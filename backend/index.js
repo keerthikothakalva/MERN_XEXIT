@@ -1,3 +1,4 @@
+
 const cors = require('cors');
 const express = require('express');
 const connectMongoDB = require('./config/config.js');
@@ -28,8 +29,7 @@ app.use('/api/admin', adminRouter);
 
 connectMongoDB();
 
-
-//  CRITICAL FOR TESTS
+//  REQUIRED FOR ASSESSMENT
 if (require.main === module) {
   app.listen(PORT, () => {
     console.log(`Backend is listening on PORT ${PORT}`);
