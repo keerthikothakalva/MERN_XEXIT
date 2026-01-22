@@ -4,8 +4,10 @@ var employeeLogics = require('../services/employee.service.js');
 
 var ExitResponse = require("../models/exitResponse.model");
 
+var memoryStore = require('../utils/memoryStore');
+
 var allEmployeeLogics = new employeeLogics(); // =====================
-// REGISTER
+// REGISTER EMPLOYEE
 // =====================
 
 var registerNewUser = function registerNewUser(req, res) {
@@ -28,27 +30,28 @@ var registerNewUser = function registerNewUser(req, res) {
             break;
           }
 
-          return _context.abrupt("return", res.status(400).send({
-            message: 'User already exists'
+          return _context.abrupt("return", res.status(400).json({
+            message: 'Employee already exists'
           }));
 
         case 7:
           _context.next = 9;
           return regeneratorRuntime.awrap(allEmployeeLogics.registerUser({
             username: username,
-            password: password
+            password: password,
+            role: 'employee'
           }));
 
         case 9:
-          return _context.abrupt("return", res.status(201).send({
-            message: 'User registered successfully'
+          return _context.abrupt("return", res.status(201).json({
+            message: 'Employee registered successfully'
           }));
 
         case 12:
           _context.prev = 12;
           _context.t0 = _context["catch"](0);
-          return _context.abrupt("return", res.status(500).send({
-            message: _context.t0.message
+          return _context.abrupt("return", res.status(500).json({
+            message: 'Internal server error'
           }));
 
         case 15:
@@ -58,7 +61,7 @@ var registerNewUser = function registerNewUser(req, res) {
     }
   }, null, null, [[0, 12]]);
 }; // =====================
-// LOGIN
+// LOGIN (EMPLOYEE / ADMIN)
 // =====================
 
 
@@ -82,8 +85,8 @@ var loginUser = function loginUser(req, res) {
             break;
           }
 
-          return _context2.abrupt("return", res.status(404).send({
-            message: 'User not found'
+          return _context2.abrupt("return", res.status(401).json({
+            message: 'Invalid credentials'
           }));
 
         case 7:
@@ -98,23 +101,26 @@ var loginUser = function loginUser(req, res) {
             break;
           }
 
-          return _context2.abrupt("return", res.status(401).send({
-            message: 'Invalid password'
+          return _context2.abrupt("return", res.status(401).json({
+            message: 'Invalid credentials'
           }));
 
         case 12:
           token = allEmployeeLogics.createToken({
-            id: user._id
+            id: user._id,
+            role: user.role
           });
-          return _context2.abrupt("return", res.status(200).send({
-            token: token
+          return _context2.abrupt("return", res.status(200).json({
+            message: 'Login successful',
+            token: token,
+            role: user.role
           }));
 
         case 16:
           _context2.prev = 16;
           _context2.t0 = _context2["catch"](0);
-          return _context2.abrupt("return", res.status(500).send({
-            message: _context2.t0.message
+          return _context2.abrupt("return", res.status(500).json({
+            message: 'Internal server error'
           }));
 
         case 19:
@@ -145,18 +151,17 @@ var newUserResign = function newUserResign(req, res) {
 
         case 4:
           resignation = _context3.sent;
-          return _context3.abrupt("return", res.status(200).send({
+          return _context3.abrupt("return", res.status(201).json({
+            message: 'Resignation submitted successfully',
             data: {
-              resignation: {
-                _id: resignation._id
-              }
+              resignationId: resignation._id
             }
           }));
 
         case 8:
           _context3.prev = 8;
           _context3.t0 = _context3["catch"](0);
-          return _context3.abrupt("return", res.status(400).send({
+          return _context3.abrupt("return", res.status(400).json({
             message: _context3.t0.message
           }));
 
@@ -171,10 +176,8 @@ var newUserResign = function newUserResign(req, res) {
 // =====================
 
 
-var memoryStore = require('../utils/memoryStore');
-
 var submitExitResponses = function submitExitResponses(req, res) {
-  var responses, payload, saved;
+  var responses, payload;
   return regeneratorRuntime.async(function submitExitResponses$(_context4) {
     while (1) {
       switch (_context4.prev = _context4.next) {
@@ -184,44 +187,38 @@ var submitExitResponses = function submitExitResponses(req, res) {
           payload = {
             employeeId: req.user._id,
             responses: responses
-          }; // Try DB first
-
+          };
           _context4.prev = 3;
           _context4.next = 6;
           return regeneratorRuntime.awrap(ExitResponse.create(payload));
 
         case 6:
-          saved = _context4.sent;
-          return _context4.abrupt("return", res.status(200).send({
-            data: saved
-          }));
+          _context4.next = 11;
+          break;
 
-        case 10:
-          _context4.prev = 10;
+        case 8:
+          _context4.prev = 8;
           _context4.t0 = _context4["catch"](3);
-          // MEMORY FALLBACK
           memoryStore.exitResponses.push(payload);
-          return _context4.abrupt("return", res.status(200).send({
-            data: payload
+
+        case 11:
+          return _context4.abrupt("return", res.status(200).json({
+            message: 'Exit questionnaire submitted successfully'
           }));
 
         case 14:
-          _context4.next = 19;
-          break;
-
-        case 16:
-          _context4.prev = 16;
+          _context4.prev = 14;
           _context4.t1 = _context4["catch"](0);
-          return _context4.abrupt("return", res.status(500).send({
-            message: _context4.t1.message
+          return _context4.abrupt("return", res.status(500).json({
+            message: 'Internal server error'
           }));
 
-        case 19:
+        case 17:
         case "end":
           return _context4.stop();
       }
     }
-  }, null, null, [[0, 16], [3, 10]]);
+  }, null, null, [[0, 14], [3, 8]]);
 }; // =====================
 // DELETE RESIGNATION
 // =====================
@@ -237,15 +234,15 @@ var deleteResign = function deleteResign(req, res) {
           return regeneratorRuntime.awrap(allEmployeeLogics.deleteResignData(req.user._id));
 
         case 3:
-          return _context5.abrupt("return", res.status(200).send({
-            message: 'Resignation deleted'
+          return _context5.abrupt("return", res.status(200).json({
+            message: 'Resignation deleted successfully'
           }));
 
         case 6:
           _context5.prev = 6;
           _context5.t0 = _context5["catch"](0);
-          return _context5.abrupt("return", res.status(500).send({
-            message: _context5.t0.message
+          return _context5.abrupt("return", res.status(500).json({
+            message: 'Internal server error'
           }));
 
         case 9:

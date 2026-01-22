@@ -7,9 +7,7 @@ const {
 const EmployeeLogics = require('../services/employee.service');
 const allEmployeeLogics = new EmployeeLogics();
 
-/* ======================
-   REGISTER VALIDATION
-====================== */
+
 const validateRegInfo = (req, res, next) => {
   const { error } = validateRegisterUser.validate(req.body);
   if (error) {
@@ -29,9 +27,7 @@ const validateLogInfo = (req, res, next) => {
   next();
 };
 
-/* ======================
-   AUTH MIDDLEWARE
-====================== */
+
 const auth = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
@@ -52,7 +48,7 @@ const auth = async (req, res, next) => {
       return res.status(401).send({ message: 'Unauthorized' });
     }
 
-    req.user = user; // DO NOT mutate mongoose doc
+    req.user = user; 
 
     next();
   } catch (err) {
@@ -60,9 +56,7 @@ const auth = async (req, res, next) => {
   }
 };
 
-/* ======================
-   RESIGN VALIDATION
-====================== */
+
 const validateResignInfo = (req, res, next) => {
   const { error } = validateResignData.validate(req.body);
 

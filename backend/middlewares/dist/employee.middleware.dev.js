@@ -8,9 +8,6 @@ var _require = require('../validators/user.validator.js'),
 var EmployeeLogics = require('../services/employee.service');
 
 var allEmployeeLogics = new EmployeeLogics();
-/* ======================
-   REGISTER VALIDATION
-====================== */
 
 var validateRegInfo = function validateRegInfo(req, res, next) {
   var _validateRegisterUser = validateRegisterUser.validate(req.body),
@@ -41,10 +38,6 @@ var validateLogInfo = function validateLogInfo(req, res, next) {
 
   next();
 };
-/* ======================
-   AUTH MIDDLEWARE
-====================== */
-
 
 var auth = function auth(req, res, next) {
   var authHeader, token, decoded, user;
@@ -94,8 +87,7 @@ var auth = function auth(req, res, next) {
           }));
 
         case 13:
-          req.user = user; // DO NOT mutate mongoose doc
-
+          req.user = user;
           next();
           _context.next = 20;
           break;
@@ -114,10 +106,6 @@ var auth = function auth(req, res, next) {
     }
   }, null, null, [[0, 17]]);
 };
-/* ======================
-   RESIGN VALIDATION
-====================== */
-
 
 var validateResignInfo = function validateResignInfo(req, res, next) {
   var _validateResignData$v = validateResignData.validate(req.body),

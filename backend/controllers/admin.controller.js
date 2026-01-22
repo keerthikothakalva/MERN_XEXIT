@@ -1,6 +1,6 @@
-const Employee = require('../models/employee.model');
 const ResignInfo = require('../models/resign.model');
 const ExitResponse = require("../models/exitResponse.model");
+const memoryStore = require('../utils/memoryStore');
 
 // =====================
 // GET ALL RESIGNATIONS
@@ -9,16 +9,16 @@ const getAllResignations = async (req, res) => {
   try {
     const resignations = await ResignInfo.find();
 
-    return res.status(200).send({
-      data: resignations.map(r => ({
+    return res.status(200).json(
+      resignations.map(r => ({
         _id: r._id,
-        empId: r.empId,
+        employeeId: r.employeeId || r.empId,
         lwd: r.lwd,
         status: r.status
       }))
-    });
+    );
   } catch (err) {
-    return res.status(500).send({ message: err.message });
+    return res.status(500).json({ message: 'Internal server error' });
   }
 };
 
@@ -29,51 +29,42 @@ const concludeResignation = async (req, res) => {
   try {
     const { resignationId, approved, lwd } = req.body;
 
-    const updatePayload = {
-      status: approved ? 'approved' : 'rejected'
-    };
+    await ResignInfo.findByIdAndUpdate(resignationId, {
+      status: approved ? 'approved' : 'rejected',
+      ...(approved && lwd && { lwd })
+    });
 
-    if (approved && lwd) {
-      updatePayload.lwd = lwd;
-    }
-
-    await ResignInfo.findByIdAndUpdate(resignationId, updatePayload);
-
-    return res.status(200).send({
-      message: 'Resignation updated successfully'
+    return res.status(201).json({
+      message: 'Resignation approved successfully'
     });
   } catch (err) {
-    return res.status(500).send({ message: err.message });
+    return res.status(500).json({ message: 'Internal server error' });
   }
 };
 
 // =====================
 // GET EXIT QUESTIONNAIRE RESPONSES
 // =====================
-const memoryStore = require('../utils/memoryStore');
-
 const getExitResponses = async (req, res) => {
   try {
-    let responses = [];
+    let responses;
 
     try {
       responses = await ExitResponse.find();
-    } catch (dbErr) {
+    } catch {
       responses = memoryStore.exitResponses;
     }
 
-    return res.status(200).send({
-      data: responses
+    return res.status(200).json({
+      responses
     });
   } catch (err) {
-    return res.status(500).send({ message: err.message });
+    return res.status(500).json({ message: 'Internal server error' });
   }
 };
-
 
 module.exports = {
   getAllResignations,
   concludeResignation,
   getExitResponses
 };
-

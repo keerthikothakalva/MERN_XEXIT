@@ -1,9 +1,12 @@
+
 const employeeLogics = require('../services/employee.service.js');
 const ExitResponse = require("../models/exitResponse.model");
+const memoryStore = require('../utils/memoryStore');
+
 const allEmployeeLogics = new employeeLogics();
 
 // =====================
-// REGISTER
+// REGISTER EMPLOYEE
 // =====================
 const registerNewUser = async (req, res) => {
   try {
@@ -11,21 +14,27 @@ const registerNewUser = async (req, res) => {
 
     const existingUser = await allEmployeeLogics.getUserByName(username);
     if (existingUser) {
-      return res.status(400).send({ message: 'User already exists' });
+      return res.status(400).json({
+        message: 'Employee already exists'
+      });
     }
 
-    await allEmployeeLogics.registerUser({ username, password });
+    await allEmployeeLogics.registerUser({
+      username,
+      password,
+      role: 'employee'
+    });
 
-    return res.status(201).send({
-      message: 'User registered successfully'
+    return res.status(201).json({
+      message: 'Employee registered successfully'
     });
   } catch (err) {
-    return res.status(500).send({ message: err.message });
+    return res.status(500).json({ message: 'Internal server error' });
   }
 };
 
 // =====================
-// LOGIN
+// LOGIN (EMPLOYEE / ADMIN)
 // =====================
 const loginUser = async (req, res) => {
   try {
@@ -33,7 +42,7 @@ const loginUser = async (req, res) => {
 
     const user = await allEmployeeLogics.getUserByName(username);
     if (!user) {
-      return res.status(404).send({ message: 'User not found' });
+      return res.status(401).json({ message: 'Invalid credentials' });
     }
 
     const isValid = await allEmployeeLogics.validatePassword(
@@ -42,14 +51,21 @@ const loginUser = async (req, res) => {
     );
 
     if (!isValid) {
-      return res.status(401).send({ message: 'Invalid password' });
+      return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    const token = allEmployeeLogics.createToken({ id: user._id });
+    const token = allEmployeeLogics.createToken({
+      id: user._id,
+      role: user.role
+    });
 
-    return res.status(200).send({ token });
+    return res.status(200).json({
+      message: 'Login successful',
+      token,
+      role: user.role
+    });
   } catch (err) {
-    return res.status(500).send({ message: err.message });
+    return res.status(500).json({ message: 'Internal server error' });
   }
 };
 
@@ -66,23 +82,20 @@ const newUserResign = async (req, res) => {
       status: 'pending'
     });
 
-    return res.status(200).send({
+    return res.status(201).json({
+      message: 'Resignation submitted successfully',
       data: {
-        resignation: {
-          _id: resignation._id
-        }
+        resignationId: resignation._id
       }
     });
   } catch (err) {
-    return res.status(400).send({ message: err.message });
+    return res.status(400).json({ message: err.message });
   }
 };
 
 // =====================
 // SUBMIT EXIT QUESTIONNAIRE
 // =====================
-const memoryStore = require('../utils/memoryStore');
-
 const submitExitResponses = async (req, res) => {
   try {
     const { responses } = req.body;
@@ -92,23 +105,17 @@ const submitExitResponses = async (req, res) => {
       responses
     };
 
-    // Try DB first
     try {
-      const saved = await ExitResponse.create(payload);
-
-      return res.status(200).send({
-        data: saved
-      });
-    } catch (dbErr) {
-      // MEMORY FALLBACK
+      await ExitResponse.create(payload);
+    } catch {
       memoryStore.exitResponses.push(payload);
-
-      return res.status(200).send({
-        data: payload
-      });
     }
+
+    return res.status(200).json({
+      message: 'Exit questionnaire submitted successfully'
+    });
   } catch (err) {
-    return res.status(500).send({ message: err.message });
+    return res.status(500).json({ message: 'Internal server error' });
   }
 };
 
@@ -119,11 +126,11 @@ const deleteResign = async (req, res) => {
   try {
     await allEmployeeLogics.deleteResignData(req.user._id);
 
-    return res.status(200).send({
-      message: 'Resignation deleted'
+    return res.status(200).json({
+      message: 'Resignation deleted successfully'
     });
   } catch (err) {
-    return res.status(500).send({ message: err.message });
+    return res.status(500).json({ message: 'Internal server error' });
   }
 };
 
@@ -134,3 +141,4 @@ module.exports = {
   submitExitResponses,
   deleteResign
 };
+
