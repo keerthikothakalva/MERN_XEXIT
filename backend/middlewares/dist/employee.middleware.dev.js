@@ -47,28 +47,16 @@ var validateLogInfo = function validateLogInfo(req, res, next) {
 
 
 var auth = function auth(req, res, next) {
-  var token, decoded, user;
+  var authHeader, token, decoded, user;
   return regeneratorRuntime.async(function auth$(_context) {
     while (1) {
       switch (_context.prev = _context.next) {
         case 0:
           _context.prev = 0;
-          token = req.headers.authorization;
+          authHeader = req.headers.authorization;
 
-          if (token) {
+          if (!(!authHeader || !authHeader.startsWith('Bearer '))) {
             _context.next = 4;
-            break;
-          }
-
-          return _context.abrupt("return", res.status(401).send({
-            message: 'Token is missing'
-          }));
-
-        case 4:
-          decoded = allEmployeeLogics.compareToken(token);
-
-          if (!(!decoded || !decoded.id)) {
-            _context.next = 7;
             break;
           }
 
@@ -76,25 +64,38 @@ var auth = function auth(req, res, next) {
             message: 'Unauthorized'
           }));
 
-        case 7:
-          _context.next = 9;
-          return regeneratorRuntime.awrap(allEmployeeLogics.findUserById(decoded.id));
+        case 4:
+          token = authHeader.split(' ')[1];
+          decoded = allEmployeeLogics.compareToken(token);
 
-        case 9:
-          user = _context.sent;
-
-          if (user) {
-            _context.next = 12;
+          if (!(!decoded || !decoded.id)) {
+            _context.next = 8;
             break;
           }
 
           return _context.abrupt("return", res.status(401).send({
-            message: 'User not found'
+            message: 'Unauthorized'
           }));
 
-        case 12:
-          req.user = user;
-          req.user.isAdmin = user.role === 'admin';
+        case 8:
+          _context.next = 10;
+          return regeneratorRuntime.awrap(allEmployeeLogics.findUserById(decoded.id));
+
+        case 10:
+          user = _context.sent;
+
+          if (user) {
+            _context.next = 13;
+            break;
+          }
+
+          return _context.abrupt("return", res.status(401).send({
+            message: 'Unauthorized'
+          }));
+
+        case 13:
+          req.user = user; // DO NOT mutate mongoose doc
+
           next();
           _context.next = 20;
           break;
@@ -103,7 +104,7 @@ var auth = function auth(req, res, next) {
           _context.prev = 17;
           _context.t0 = _context["catch"](0);
           return _context.abrupt("return", res.status(401).send({
-            message: 'Invalid token'
+            message: 'Unauthorized'
           }));
 
         case 20:
@@ -119,7 +120,6 @@ var auth = function auth(req, res, next) {
 
 
 var validateResignInfo = function validateResignInfo(req, res, next) {
-  // ✅ Cypress sends ONLY { lwd }
   var _validateResignData$v = validateResignData.validate(req.body),
       error = _validateResignData$v.error;
 

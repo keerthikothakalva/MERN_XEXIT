@@ -93,6 +93,8 @@ var concludeResignation = function concludeResignation(req, res) {
 // =====================
 
 
+var memoryStore = require('../utils/memoryStore');
+
 var getExitResponses = function getExitResponses(req, res) {
   var responses;
   return regeneratorRuntime.async(function getExitResponses$(_context3) {
@@ -100,28 +102,39 @@ var getExitResponses = function getExitResponses(req, res) {
       switch (_context3.prev = _context3.next) {
         case 0:
           _context3.prev = 0;
-          _context3.next = 3;
+          responses = [];
+          _context3.prev = 2;
+          _context3.next = 5;
           return regeneratorRuntime.awrap(ExitResponse.find());
 
-        case 3:
+        case 5:
           responses = _context3.sent;
+          _context3.next = 11;
+          break;
+
+        case 8:
+          _context3.prev = 8;
+          _context3.t0 = _context3["catch"](2);
+          responses = memoryStore.exitResponses;
+
+        case 11:
           return _context3.abrupt("return", res.status(200).send({
             data: responses
           }));
 
-        case 7:
-          _context3.prev = 7;
-          _context3.t0 = _context3["catch"](0);
+        case 14:
+          _context3.prev = 14;
+          _context3.t1 = _context3["catch"](0);
           return _context3.abrupt("return", res.status(500).send({
-            message: _context3.t0.message
+            message: _context3.t1.message
           }));
 
-        case 10:
+        case 17:
         case "end":
           return _context3.stop();
       }
     }
-  }, null, null, [[0, 7]]);
+  }, null, null, [[0, 14], [2, 8]]);
 };
 
 module.exports = {

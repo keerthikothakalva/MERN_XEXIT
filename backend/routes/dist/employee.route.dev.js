@@ -9,7 +9,7 @@ var _require = require('../middlewares/employee.middleware'),
 var _require2 = require('../controllers/employee.controller'),
     newUserResign = _require2.newUserResign,
     deleteResign = _require2.deleteResign,
-    submitExitResponses = _require2.submitExitResponses; // EMPLOYEE ROUTES ONLY
+    submitExitResponses = _require2.submitExitResponses; // EMPLOYEE ACTIONS ONLY
 
 
 router.post('/resign', auth, validateResignInfo, newUserResign);

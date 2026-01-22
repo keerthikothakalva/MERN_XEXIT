@@ -8,7 +8,7 @@ var _require = require('../middlewares/employee.middleware'),
 
 var _require2 = require('../controllers/employee.controller'),
     registerNewUser = _require2.registerNewUser,
-    loginUser = _require2.loginUser; // AUTH ROUTES ONLY
+    loginUser = _require2.loginUser; // AUTH ROUTES (ONLY)
 
 
 router.post('/register', validateRegInfo, registerNewUser);

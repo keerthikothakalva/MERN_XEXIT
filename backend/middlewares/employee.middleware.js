@@ -34,10 +34,13 @@ const validateLogInfo = (req, res, next) => {
 ====================== */
 const auth = async (req, res, next) => {
   try {
-    const token = req.headers.authorization;
-    if (!token) {
-      return res.status(401).send({ message: 'Token is missing' });
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).send({ message: 'Unauthorized' });
     }
+
+    const token = authHeader.split(' ')[1];
 
     const decoded = allEmployeeLogics.compareToken(token);
     if (!decoded || !decoded.id) {
@@ -46,25 +49,21 @@ const auth = async (req, res, next) => {
 
     const user = await allEmployeeLogics.findUserById(decoded.id);
     if (!user) {
-      return res.status(401).send({ message: 'User not found' });
+      return res.status(401).send({ message: 'Unauthorized' });
     }
 
-    
-    req.user = user;
-    req.user.isAdmin = user.role === 'admin'; 
+    req.user = user; // DO NOT mutate mongoose doc
 
     next();
   } catch (err) {
-    return res.status(401).send({ message: 'Invalid token' });
+    return res.status(401).send({ message: 'Unauthorized' });
   }
 };
-
 
 /* ======================
    RESIGN VALIDATION
 ====================== */
 const validateResignInfo = (req, res, next) => {
-  // ✅ Cypress sends ONLY { lwd }
   const { error } = validateResignData.validate(req.body);
 
   if (error) {

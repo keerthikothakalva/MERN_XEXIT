@@ -11,7 +11,7 @@ const {
   submitExitResponses
 } = require('../controllers/employee.controller');
 
-// EMPLOYEE ROUTES ONLY
+// EMPLOYEE ACTIONS ONLY
 router.post('/resign', auth, validateResignInfo, newUserResign);
 router.delete('/resign', auth, deleteResign);
 router.post('/responses', auth, submitExitResponses);

@@ -171,39 +171,57 @@ var newUserResign = function newUserResign(req, res) {
 // =====================
 
 
+var memoryStore = require('../utils/memoryStore');
+
 var submitExitResponses = function submitExitResponses(req, res) {
-  var responses, saved;
+  var responses, payload, saved;
   return regeneratorRuntime.async(function submitExitResponses$(_context4) {
     while (1) {
       switch (_context4.prev = _context4.next) {
         case 0:
           _context4.prev = 0;
           responses = req.body.responses;
-          _context4.next = 4;
-          return regeneratorRuntime.awrap(ExitResponse.create({
+          payload = {
             employeeId: req.user._id,
             responses: responses
-          }));
+          }; // Try DB first
 
-        case 4:
+          _context4.prev = 3;
+          _context4.next = 6;
+          return regeneratorRuntime.awrap(ExitResponse.create(payload));
+
+        case 6:
           saved = _context4.sent;
           return _context4.abrupt("return", res.status(200).send({
             data: saved
           }));
 
-        case 8:
-          _context4.prev = 8;
-          _context4.t0 = _context4["catch"](0);
-          return _context4.abrupt("return", res.status(500).send({
-            message: _context4.t0.message
+        case 10:
+          _context4.prev = 10;
+          _context4.t0 = _context4["catch"](3);
+          // MEMORY FALLBACK
+          memoryStore.exitResponses.push(payload);
+          return _context4.abrupt("return", res.status(200).send({
+            data: payload
           }));
 
-        case 11:
+        case 14:
+          _context4.next = 19;
+          break;
+
+        case 16:
+          _context4.prev = 16;
+          _context4.t1 = _context4["catch"](0);
+          return _context4.abrupt("return", res.status(500).send({
+            message: _context4.t1.message
+          }));
+
+        case 19:
         case "end":
           return _context4.stop();
       }
     }
-  }, null, null, [[0, 8]]);
+  }, null, null, [[0, 16], [3, 10]]);
 }; // =====================
 // DELETE RESIGNATION
 // =====================

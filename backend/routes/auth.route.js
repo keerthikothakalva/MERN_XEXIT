@@ -10,7 +10,7 @@ const {
   loginUser
 } = require('../controllers/employee.controller');
 
-// AUTH ROUTES ONLY
+// AUTH ROUTES (ONLY)
 router.post('/register', validateRegInfo, registerNewUser);
 router.post('/login', validateLogInfo, loginUser);
 

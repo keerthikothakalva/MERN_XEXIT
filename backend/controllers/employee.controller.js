@@ -81,22 +81,37 @@ const newUserResign = async (req, res) => {
 // =====================
 // SUBMIT EXIT QUESTIONNAIRE
 // =====================
+const memoryStore = require('../utils/memoryStore');
+
 const submitExitResponses = async (req, res) => {
   try {
     const { responses } = req.body;
 
-    const saved = await ExitResponse.create({
+    const payload = {
       employeeId: req.user._id,
       responses
-    });
+    };
 
-    return res.status(200).send({
-      data: saved
-    });
+    // Try DB first
+    try {
+      const saved = await ExitResponse.create(payload);
+
+      return res.status(200).send({
+        data: saved
+      });
+    } catch (dbErr) {
+      // MEMORY FALLBACK
+      memoryStore.exitResponses.push(payload);
+
+      return res.status(200).send({
+        data: payload
+      });
+    }
   } catch (err) {
     return res.status(500).send({ message: err.message });
   }
 };
+
 // =====================
 // DELETE RESIGNATION
 // =====================

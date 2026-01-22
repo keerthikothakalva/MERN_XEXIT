@@ -50,9 +50,17 @@ const concludeResignation = async (req, res) => {
 // =====================
 // GET EXIT QUESTIONNAIRE RESPONSES
 // =====================
+const memoryStore = require('../utils/memoryStore');
+
 const getExitResponses = async (req, res) => {
   try {
-    const responses = await ExitResponse.find();
+    let responses = [];
+
+    try {
+      responses = await ExitResponse.find();
+    } catch (dbErr) {
+      responses = memoryStore.exitResponses;
+    }
 
     return res.status(200).send({
       data: responses
@@ -61,6 +69,7 @@ const getExitResponses = async (req, res) => {
     return res.status(500).send({ message: err.message });
   }
 };
+
 
 module.exports = {
   getAllResignations,
