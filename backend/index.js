@@ -1,7 +1,5 @@
 const cors = require('cors');
 const express = require('express');
-const employeeRouter = require('./routes/employee.route.js');
-const adminRouter = require('./routes/admin.route.js');
 const connectMongoDB = require('./config/config.js');
 
 require('dotenv').config();
@@ -23,16 +21,14 @@ app.get('/', (req, res) => {
 });
 
 // =====================
-// ROUTES (VERY IMPORTANT)
+// ROUTES (CORRECTLY SEPARATED)
 // =====================
+const authRouter = require('./routes/auth.route.js');
+const employeeRouter = require('./routes/employee.route.js');
+const adminRouter = require('./routes/admin.route.js');
 
-// Auth routes ONLY
-app.use('/api/auth', employeeRouter);
-
-// User routes ONLY
+app.use('/api/auth', authRouter);
 app.use('/api/user', employeeRouter);
-
-// Admin routes ONLY
 app.use('/api/admin', adminRouter);
 
 // =====================

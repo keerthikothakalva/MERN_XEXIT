@@ -2,11 +2,16 @@ const mongoose = require('mongoose');
 
 const connectMongoDB = async () => {
   try {
+    if (!process.env.MONGODB_URI) {
+      console.log('⚠️ MONGODB_URI not found. Skipping DB connection.');
+      return;
+    }
+
     await mongoose.connect(process.env.MONGODB_URI);
-    console.log('DB connected');
+    console.log('✅ MongoDB connected');
   } catch (error) {
-    console.log('Error in connecting DB', error);
-    process.exit(1);
+    console.log('⚠️ MongoDB connection failed. Continuing without DB.');
+  
   }
 };
 

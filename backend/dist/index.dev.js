@@ -4,10 +4,6 @@ var cors = require('cors');
 
 var express = require('express');
 
-var employeeRouter = require('./routes/employee.route.js');
-
-var adminRouter = require('./routes/admin.route.js');
-
 var connectMongoDB = require('./config/config.js');
 
 require('dotenv').config();
@@ -27,14 +23,17 @@ app.get('/', function (req, res) {
     message: 'Server is running'
   });
 }); // =====================
-// ROUTES (VERY IMPORTANT)
+// ROUTES (CORRECTLY SEPARATED)
 // =====================
-// Auth routes ONLY
 
-app.use('/api/auth', employeeRouter); // User routes ONLY
+var authRouter = require('./routes/auth.route.js');
 
-app.use('/api/user', employeeRouter); // Admin routes ONLY
+var employeeRouter = require('./routes/employee.route.js');
 
+var adminRouter = require('./routes/admin.route.js');
+
+app.use('/api/auth', authRouter);
+app.use('/api/user', employeeRouter);
 app.use('/api/admin', adminRouter); // =====================
 // DB CONNECTION
 // =====================
