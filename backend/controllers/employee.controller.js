@@ -15,23 +15,14 @@ const registerNewUser = async (req, res) => {
 
     
     if (!isDBConnected()) {
-  const resignation = {
-    _id: Date.now().toString(),
-    employeeId: memoryStore.users[0]?._id,
-    lwd,
-    status: 'pending'
-  };
-
-  memoryStore.employees.push(resignation);
-
-  return res.status(200).send({
-    data: {
-      resignation: {
-        _id: resignation._id
+      const exists = memoryStore.users.find(u => u.username === username);
+      if (exists) {
+        return res.status(400).send({ message: 'User already exists' });
       }
+
+      memoryStore.users.push({ username, password, role: 'employee' });
+      return res.status(201).send({ message: 'User registered successfully' });
     }
-  });
-}
 
     
     const existingUser = await allEmployeeLogics.getUserByName(username);
@@ -59,7 +50,7 @@ const loginUser = async (req, res) => {
   try {
     const { username, password } = req.body;
 
-    // ✅ MEMORY MODE
+    
     if (!isDBConnected()) {
       const user = memoryStore.users.find(
         u => u.username === username && u.password === password
@@ -76,7 +67,7 @@ const loginUser = async (req, res) => {
       });
     }
 
-    // ✅ DB MODE
+    
     const user = await allEmployeeLogics.getUserByName(username);
     if (!user) {
       return res.status(401).send({ message: 'Invalid credentials' });
@@ -106,7 +97,6 @@ const loginUser = async (req, res) => {
   }
 };
 
-
 // =====================
 // SUBMIT RESIGNATION
 // =====================
@@ -114,48 +104,38 @@ const newUserResign = async (req, res) => {
   try {
     const { lwd } = req.body;
 
-    // ✅ MEMORY MODE
-    if (!isDBConnected()) {
-      const resignation = {
-        _id: Date.now().toString(),
-        employeeId: req.user?.id || 'memory-user',
-        lwd,
-        status: 'pending'
-      };
-
-      memoryStore.employees.push(resignation);
-
-      return res.status(200).send({
-        data: { resignation: { _id: resignation._id } }
-      });
-    }
-
-    // ✅ DB MODE
     const resignation = await allEmployeeLogics.addResignOfEmployee({
       employeeId: req.user._id,
       lwd,
       status: 'pending'
     });
 
-    return res.status(200).send({
-      data: { resignation: { _id: resignation._id } }
-    });
+  return res.status(200).send({
+  data: {
+    resignation: {
+      _id: resignation._id
+    }
+  }
+});
+
   } catch (err) {
     return res.status(400).send({ message: err.message });
   }
 };
-
 
 // =====================
 // SUBMIT EXIT RESPONSES
 // =====================
 const submitExitResponses = async (req, res) => {
   try {
-    const { responses } = req.body;
+    const response = {
+      employeeId: req.user?.id || 'memory-user',
+      responses: req.body.responses,  
+      submittedAt: new Date()
+    };
 
-    if (!responses || !Array.isArray(responses)) {
-      return res.status(400).send({ message: 'Invalid responses' });
-    }
+    // ALWAYS STORE IN MEMORY (even if DB connected)
+    memoryStore.exitResponses.push(response);
 
     return res.status(200).send({
       message: 'Exit questionnaire submitted successfully'

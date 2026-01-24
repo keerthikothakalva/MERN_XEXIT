@@ -16,7 +16,7 @@ var isDBConnected = function isDBConnected() {
 
 
 var registerNewUser = function registerNewUser(req, res) {
-  var _req$body, username, password, existingUser;
+  var _req$body, username, password, exists, existingUser;
 
   return regeneratorRuntime.async(function registerNewUser$(_context) {
     while (1) {
@@ -24,14 +24,18 @@ var registerNewUser = function registerNewUser(req, res) {
         case 0:
           _context.prev = 0;
           _req$body = req.body, username = _req$body.username, password = _req$body.password;
-          _context.next = 4;
-          return regeneratorRuntime.awrap(allEmployeeLogics.getUserByName(username));
 
-        case 4:
-          existingUser = _context.sent;
+          if (isDBConnected()) {
+            _context.next = 8;
+            break;
+          }
 
-          if (!existingUser) {
-            _context.next = 7;
+          exists = memoryStore.users.find(function (u) {
+            return u.username === username;
+          });
+
+          if (!exists) {
+            _context.next = 6;
             break;
           }
 
@@ -39,32 +43,58 @@ var registerNewUser = function registerNewUser(req, res) {
             message: 'User already exists'
           }));
 
-        case 7:
-          _context.next = 9;
+        case 6:
+          memoryStore.users.push({
+            username: username,
+            password: password,
+            role: 'employee'
+          });
+          return _context.abrupt("return", res.status(201).send({
+            message: 'User registered successfully'
+          }));
+
+        case 8:
+          _context.next = 10;
+          return regeneratorRuntime.awrap(allEmployeeLogics.getUserByName(username));
+
+        case 10:
+          existingUser = _context.sent;
+
+          if (!existingUser) {
+            _context.next = 13;
+            break;
+          }
+
+          return _context.abrupt("return", res.status(400).send({
+            message: 'User already exists'
+          }));
+
+        case 13:
+          _context.next = 15;
           return regeneratorRuntime.awrap(allEmployeeLogics.registerUser({
             username: username,
             password: password,
             role: 'employee'
           }));
 
-        case 9:
+        case 15:
           return _context.abrupt("return", res.status(201).send({
             message: 'User registered successfully'
           }));
 
-        case 12:
-          _context.prev = 12;
+        case 18:
+          _context.prev = 18;
           _context.t0 = _context["catch"](0);
           return _context.abrupt("return", res.status(500).send({
             message: _context.t0.message
           }));
 
-        case 15:
+        case 21:
         case "end":
           return _context.stop();
       }
     }
-  }, null, null, [[0, 12]]);
+  }, null, null, [[0, 18]]);
 }; // =====================
 // LOGIN
 // =====================

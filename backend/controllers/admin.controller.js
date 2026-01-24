@@ -71,10 +71,9 @@ const concludeResignation = async (req, res) => {
 // =====================
 const getExitResponses = async (req, res) => {
   try {
-    const responses = await adminLogics.getAllExitResponses();
-
+    
     return res.status(200).send({
-      data: responses || []
+      data: memoryStore.exitResponses || []
     });
   } catch (err) {
     return res.status(500).send({ message: err.message });

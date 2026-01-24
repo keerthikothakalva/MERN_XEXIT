@@ -144,34 +144,28 @@ var concludeResignation = function concludeResignation(req, res) {
 
 
 var getExitResponses = function getExitResponses(req, res) {
-  var responses;
   return regeneratorRuntime.async(function getExitResponses$(_context3) {
     while (1) {
       switch (_context3.prev = _context3.next) {
         case 0:
           _context3.prev = 0;
-          _context3.next = 3;
-          return regeneratorRuntime.awrap(adminLogics.getAllExitResponses());
-
-        case 3:
-          responses = _context3.sent;
           return _context3.abrupt("return", res.status(200).send({
-            data: responses || []
+            data: memoryStore.exitResponses || []
           }));
 
-        case 7:
-          _context3.prev = 7;
+        case 4:
+          _context3.prev = 4;
           _context3.t0 = _context3["catch"](0);
           return _context3.abrupt("return", res.status(500).send({
             message: _context3.t0.message
           }));
 
-        case 10:
+        case 7:
         case "end":
           return _context3.stop();
       }
     }
-  }, null, null, [[0, 7]]);
+  }, null, null, [[0, 4]]);
 };
 
 module.exports = {
