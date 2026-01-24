@@ -21,11 +21,12 @@ app.use('/api/auth', authRouter);
 app.use('/api/user', employeeRouter);
 app.use('/api/admin', adminRouter);
 
-connectMongoDB();
 
-
-app.listen(PORT, () => {
-  console.log(`Backend is listening on PORT ${PORT}`);
-});
+if (require.main === module) {
+  connectMongoDB();
+  app.listen(PORT, () => {
+    console.log(`Backend is listening on PORT ${PORT}`);
+  });
+}
 
 module.exports = app;
