@@ -12,9 +12,17 @@ const {
   getExitResponses
 } = require('../controllers/admin.controller');
 
-
 router.get('/resignations', validateAdminAuth, getAllResignations);
-router.post('/resignations/approve', validateAdminAuth, validateAdminActions, concludeResignation);
-router.get('/exit-responses', validateAdminAuth, getExitResponses);
+
+// 🔥 MUST BE PUT + EXACT PATH
+router.put(
+  '/conclude_resignation',
+  validateAdminAuth,
+  validateAdminActions,
+  concludeResignation
+);
+
+// 🔥 MUST BE UNDERSCORE
+router.get('/exit_responses', validateAdminAuth, getExitResponses);
 
 module.exports = router;

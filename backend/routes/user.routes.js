@@ -1,19 +1,21 @@
 const express = require('express');
 const router = express.Router();
 
+const { validateEmployeeAuth } = require('../middlewares/employee.middleware');
+
 const {
   newUserResign,
   submitExitResponses,
   deleteResign
-} = require('../controllers/employee.controller');
+} = require('../controllers/user.controller');
 
-const {
-  validateEmployeeAuth
-} = require('../middlewares/employee.middleware');
-
-// 🔥 THESE MUST BE FUNCTIONS
+// Employee resign
 router.post('/resign', validateEmployeeAuth, newUserResign);
+
+// 🔥 THIS WAS FAILING
 router.post('/responses', validateEmployeeAuth, submitExitResponses);
+
+// Delete resignation
 router.delete('/resign', validateEmployeeAuth, deleteResign);
 
 module.exports = router;

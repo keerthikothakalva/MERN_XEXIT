@@ -1,65 +1,61 @@
-const ResignInfo = require('../models/resign.model');
-const ExitResponse = require("../models/exitResponse.model");
-const memoryStore = require('../utils/memoryStore');
+const AdminLogics = require('../services/admin.service');
+const adminLogics = new AdminLogics();
 
 // =====================
 // GET ALL RESIGNATIONS
 // =====================
 const getAllResignations = async (req, res) => {
   try {
-    const resignations = await ResignInfo.find();
+    const resignations = await adminLogics.getAllResignations();
 
-    return res.status(200).json(
-      resignations.map(r => ({
-        _id: r._id,
-        employeeId: r.employeeId || r.empId,
-        lwd: r.lwd,
-        status: r.status
-      }))
-    );
+    
+    return res.status(200).send({
+      data: resignations || []
+    });
   } catch (err) {
-    return res.status(500).json({ message: 'Internal server error' });
+    return res.status(500).send({ message: err.message });
   }
 };
 
 // =====================
-// APPROVE / REJECT RESIGNATION
+// CONCLUDE RESIGNATION
 // =====================
 const concludeResignation = async (req, res) => {
   try {
     const { resignationId, approved, lwd } = req.body;
 
-    await ResignInfo.findByIdAndUpdate(resignationId, {
-      status: approved ? 'approved' : 'rejected',
-      ...(approved && lwd && { lwd })
-    });
+    
+    if (!resignationId || approved === undefined) {
+      return res.status(400).send({ message: 'Invalid request' });
+    }
 
-    return res.status(201).json({
-      message: 'Resignation approved successfully'
+    await adminLogics.concludeResignation(
+      resignationId,
+      approved,
+      lwd
+    );
+
+    return res.status(200).send({
+      message: 'Resignation updated successfully'
     });
   } catch (err) {
-    return res.status(500).json({ message: 'Internal server error' });
+    return res.status(400).send({ message: err.message });
   }
 };
 
 // =====================
-// GET EXIT QUESTIONNAIRE RESPONSES
+// GET EXIT RESPONSES
 // =====================
 const getExitResponses = async (req, res) => {
   try {
-    let responses;
+    const responses = await adminLogics.getAllExitResponses();
 
-    try {
-      responses = await ExitResponse.find();
-    } catch {
-      responses = memoryStore.exitResponses;
-    }
-
-    return res.status(200).json({
-      responses
+    
+    return res.status(200).send({
+      data: responses || []
     });
   } catch (err) {
-    return res.status(500).json({ message: 'Internal server error' });
+    return res.status(500).send({ message: err.message });
   }
 };
 

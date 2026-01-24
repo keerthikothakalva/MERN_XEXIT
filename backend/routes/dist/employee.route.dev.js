@@ -1,19 +1,20 @@
 "use strict";
 
-var router = require('express').Router();
+var express = require('express');
 
-var _require = require('../middlewares/employee.middleware'),
-    validateResignInfo = _require.validateResignInfo,
-    auth = _require.auth;
+var router = express.Router();
 
-var _require2 = require('../controllers/employee.controller'),
-    newUserResign = _require2.newUserResign,
-    deleteResign = _require2.deleteResign,
-    submitExitResponses = _require2.submitExitResponses; // EMPLOYEE ACTIONS ONLY
+var _require = require('../controllers/employee.controller'),
+    newUserResign = _require.newUserResign,
+    submitExitResponses = _require.submitExitResponses,
+    deleteResign = _require.deleteResign;
+
+var _require2 = require('../middlewares/employee.middleware'),
+    validateEmployeeAuth = _require2.validateEmployeeAuth; // 🔥 THESE MUST BE FUNCTIONS
 
 
-router.post('/resign', auth, validateResignInfo, newUserResign);
-router["delete"]('/resign', auth, deleteResign);
-router.post('/responses', auth, submitExitResponses);
+router.post('/resign', validateEmployeeAuth, newUserResign);
+router.post('/responses', validateEmployeeAuth, submitExitResponses);
+router["delete"]('/resign', validateEmployeeAuth, deleteResign);
 module.exports = router;
 //# sourceMappingURL=employee.route.dev.js.map

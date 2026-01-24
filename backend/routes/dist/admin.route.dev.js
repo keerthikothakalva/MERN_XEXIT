@@ -13,8 +13,10 @@ var _require2 = require('../controllers/admin.controller'),
     concludeResignation = _require2.concludeResignation,
     getExitResponses = _require2.getExitResponses;
 
-router.get('/resignations', validateAdminAuth, getAllResignations);
-router.post('/resignations/approve', validateAdminAuth, validateAdminActions, concludeResignation);
-router.get('/exit-responses', validateAdminAuth, getExitResponses);
+router.get('/resignations', validateAdminAuth, getAllResignations); // 🔥 MUST BE PUT + EXACT PATH
+
+router.put('/conclude_resignation', validateAdminAuth, validateAdminActions, concludeResignation); // 🔥 MUST BE UNDERSCORE
+
+router.get('/exit_responses', validateAdminAuth, getExitResponses);
 module.exports = router;
 //# sourceMappingURL=admin.route.dev.js.map

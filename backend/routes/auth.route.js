@@ -1,17 +1,12 @@
-const router = require('express').Router();
-
-const {
-  validateRegInfo,
-  validateLogInfo
-} = require('../middlewares/employee.middleware');
+const express = require('express');
+const router = express.Router();
 
 const {
   registerNewUser,
   loginUser
 } = require('../controllers/employee.controller');
 
-// AUTH ROUTES (ONLY)
-router.post('/register', validateRegInfo, registerNewUser);
-router.post('/login', validateLogInfo, loginUser);
+router.post('/register', registerNewUser);
+router.post('/login', loginUser);
 
 module.exports = router;

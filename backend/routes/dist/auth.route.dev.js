@@ -1,17 +1,14 @@
 "use strict";
 
-var router = require('express').Router();
+var express = require('express');
 
-var _require = require('../middlewares/employee.middleware'),
-    validateRegInfo = _require.validateRegInfo,
-    validateLogInfo = _require.validateLogInfo;
+var router = express.Router();
 
-var _require2 = require('../controllers/employee.controller'),
-    registerNewUser = _require2.registerNewUser,
-    loginUser = _require2.loginUser; // AUTH ROUTES (ONLY)
+var _require = require('../controllers/employee.controller'),
+    registerNewUser = _require.registerNewUser,
+    loginUser = _require.loginUser;
 
-
-router.post('/register', validateRegInfo, registerNewUser);
-router.post('/login', validateLogInfo, loginUser);
+router.post('/register', registerNewUser);
+router.post('/login', loginUser);
 module.exports = router;
 //# sourceMappingURL=auth.route.dev.js.map

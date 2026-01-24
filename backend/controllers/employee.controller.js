@@ -1,12 +1,8 @@
-
 const employeeLogics = require('../services/employee.service.js');
-const ExitResponse = require("../models/exitResponse.model");
-const memoryStore = require('../utils/memoryStore');
-
 const allEmployeeLogics = new employeeLogics();
 
 // =====================
-// REGISTER EMPLOYEE
+// REGISTER
 // =====================
 const registerNewUser = async (req, res) => {
   try {
@@ -14,9 +10,7 @@ const registerNewUser = async (req, res) => {
 
     const existingUser = await allEmployeeLogics.getUserByName(username);
     if (existingUser) {
-      return res.status(400).json({
-        message: 'Employee already exists'
-      });
+      return res.status(400).send({ message: 'User already exists' });
     }
 
     await allEmployeeLogics.registerUser({
@@ -25,16 +19,16 @@ const registerNewUser = async (req, res) => {
       role: 'employee'
     });
 
-    return res.status(201).json({
-      message: 'Employee registered successfully'
+    return res.status(201).send({
+      message: 'User registered successfully'
     });
   } catch (err) {
-    return res.status(500).json({ message: 'Internal server error' });
+    return res.status(500).send({ message: err.message });
   }
 };
 
 // =====================
-// LOGIN (EMPLOYEE / ADMIN)
+// LOGIN
 // =====================
 const loginUser = async (req, res) => {
   try {
@@ -42,7 +36,7 @@ const loginUser = async (req, res) => {
 
     const user = await allEmployeeLogics.getUserByName(username);
     if (!user) {
-      return res.status(401).json({ message: 'Invalid credentials' });
+      return res.status(401).send({ message: 'Invalid credentials' });
     }
 
     const isValid = await allEmployeeLogics.validatePassword(
@@ -51,7 +45,7 @@ const loginUser = async (req, res) => {
     );
 
     if (!isValid) {
-      return res.status(401).json({ message: 'Invalid credentials' });
+      return res.status(401).send({ message: 'Invalid credentials' });
     }
 
     const token = allEmployeeLogics.createToken({
@@ -59,13 +53,13 @@ const loginUser = async (req, res) => {
       role: user.role
     });
 
-    return res.status(200).json({
+    return res.status(200).send({
       message: 'Login successful',
       token,
       role: user.role
     });
   } catch (err) {
-    return res.status(500).json({ message: 'Internal server error' });
+    return res.status(500).send({ message: err.message });
   }
 };
 
@@ -82,40 +76,35 @@ const newUserResign = async (req, res) => {
       status: 'pending'
     });
 
-    return res.status(201).json({
-      message: 'Resignation submitted successfully',
-      data: {
-        resignationId: resignation._id
-      }
-    });
+  return res.status(200).send({
+  data: {
+    resignation: {
+      _id: resignation._id
+    }
+  }
+});
+
   } catch (err) {
-    return res.status(400).json({ message: err.message });
+    return res.status(400).send({ message: err.message });
   }
 };
 
 // =====================
-// SUBMIT EXIT QUESTIONNAIRE
+// SUBMIT EXIT RESPONSES
 // =====================
 const submitExitResponses = async (req, res) => {
   try {
     const { responses } = req.body;
 
-    const payload = {
-      employeeId: req.user._id,
-      responses
-    };
-
-    try {
-      await ExitResponse.create(payload);
-    } catch {
-      memoryStore.exitResponses.push(payload);
+    if (!responses || !Array.isArray(responses)) {
+      return res.status(400).send({ message: 'Invalid responses' });
     }
 
-    return res.status(200).json({
+    return res.status(200).send({
       message: 'Exit questionnaire submitted successfully'
     });
   } catch (err) {
-    return res.status(500).json({ message: 'Internal server error' });
+    return res.status(500).send({ message: err.message });
   }
 };
 
@@ -126,11 +115,11 @@ const deleteResign = async (req, res) => {
   try {
     await allEmployeeLogics.deleteResignData(req.user._id);
 
-    return res.status(200).json({
+    return res.status(200).send({
       message: 'Resignation deleted successfully'
     });
   } catch (err) {
-    return res.status(500).json({ message: 'Internal server error' });
+    return res.status(500).send({ message: err.message });
   }
 };
 
@@ -141,4 +130,3 @@ module.exports = {
   submitExitResponses,
   deleteResign
 };
-

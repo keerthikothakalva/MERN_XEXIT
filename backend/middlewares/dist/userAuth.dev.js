@@ -4,9 +4,9 @@ var EmployeeLogics = require('../services/employee.service');
 
 var allEmployeeLogics = new EmployeeLogics();
 
-var validateAdminAuth = function validateAdminAuth(req, res, next) {
+var validateUserAuth = function validateUserAuth(req, res, next) {
   var token, decoded, user;
-  return regeneratorRuntime.async(function validateAdminAuth$(_context) {
+  return regeneratorRuntime.async(function validateUserAuth$(_context) {
     while (1) {
       switch (_context.prev = _context.next) {
         case 0:
@@ -23,15 +23,10 @@ var validateAdminAuth = function validateAdminAuth(req, res, next) {
           }));
 
         case 4:
-          // ✅ Accept both raw token and Bearer token
-          if (token.startsWith('Bearer ')) {
-            token = token.split(' ')[1];
-          }
-
           decoded = allEmployeeLogics.compareToken(token);
 
           if (!(!decoded || !decoded.id)) {
-            _context.next = 8;
+            _context.next = 7;
             break;
           }
 
@@ -39,51 +34,44 @@ var validateAdminAuth = function validateAdminAuth(req, res, next) {
             message: 'Unauthorized'
           }));
 
-        case 8:
-          _context.next = 10;
+        case 7:
+          _context.next = 9;
           return regeneratorRuntime.awrap(allEmployeeLogics.findUserById(decoded.id));
 
-        case 10:
+        case 9:
           user = _context.sent;
 
-          if (!(!user || user.role !== 'admin')) {
-            _context.next = 13;
+          if (user) {
+            _context.next = 12;
             break;
           }
 
-          return _context.abrupt("return", res.status(403).json({
-            message: 'Admin access required'
+          return _context.abrupt("return", res.status(401).json({
+            message: 'Unauthorized'
           }));
 
-        case 13:
-          req.admin = user; // 🔥 REQUIRED
-
+        case 12:
+          req.user = user;
           next();
-          _context.next = 20;
+          _context.next = 19;
           break;
 
-        case 17:
-          _context.prev = 17;
+        case 16:
+          _context.prev = 16;
           _context.t0 = _context["catch"](0);
           return _context.abrupt("return", res.status(401).json({
             message: 'Unauthorized'
           }));
 
-        case 20:
+        case 19:
         case "end":
           return _context.stop();
       }
     }
-  }, null, null, [[0, 17]]);
-}; // Cypress does not enforce extra admin permissions
-
-
-var validateAdminActions = function validateAdminActions(req, res, next) {
-  next();
+  }, null, null, [[0, 16]]);
 };
 
 module.exports = {
-  validateAdminAuth: validateAdminAuth,
-  validateAdminActions: validateAdminActions
+  validateUserAuth: validateUserAuth
 };
-//# sourceMappingURL=adminAuth.dev.js.map
+//# sourceMappingURL=userAuth.dev.js.map
