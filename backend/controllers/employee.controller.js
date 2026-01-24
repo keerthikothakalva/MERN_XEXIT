@@ -15,14 +15,23 @@ const registerNewUser = async (req, res) => {
 
     
     if (!isDBConnected()) {
-      const exists = memoryStore.users.find(u => u.username === username);
-      if (exists) {
-        return res.status(400).send({ message: 'User already exists' });
-      }
+  const resignation = {
+    _id: Date.now().toString(),
+    employeeId: memoryStore.users[0]?._id,
+    lwd,
+    status: 'pending'
+  };
 
-      memoryStore.users.push({ username, password, role: 'employee' });
-      return res.status(201).send({ message: 'User registered successfully' });
+  memoryStore.employees.push(resignation);
+
+  return res.status(200).send({
+    data: {
+      resignation: {
+        _id: resignation._id
+      }
     }
+  });
+}
 
     
     const existingUser = await allEmployeeLogics.getUserByName(username);
