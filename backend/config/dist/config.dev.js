@@ -9,31 +9,34 @@ var connectMongoDB = function connectMongoDB() {
         case 0:
           _context.prev = 0;
 
-          if (!process.env.MONGODB_URI) {
-            console.error('MONGODB_URI not found');
-            process.exit(1);
+          if (process.env.MONGODB_URI) {
+            _context.next = 4;
+            break;
           }
 
-          _context.next = 4;
-          return regeneratorRuntime.awrap(mongoose.connect(process.env.MONGODB_URI));
+          console.warn('MONGODB_URI not found, skipping MongoDB connection');
+          return _context.abrupt("return");
 
         case 4:
+          _context.next = 6;
+          return regeneratorRuntime.awrap(mongoose.connect(process.env.MONGODB_URI));
+
+        case 6:
           console.log('MongoDB connected');
-          _context.next = 11;
+          _context.next = 12;
           break;
 
-        case 7:
-          _context.prev = 7;
+        case 9:
+          _context.prev = 9;
           _context.t0 = _context["catch"](0);
           console.error('MongoDB connection failed:', _context.t0.message);
-          process.exit(1);
 
-        case 11:
+        case 12:
         case "end":
           return _context.stop();
       }
     }
-  }, null, null, [[0, 7]]);
+  }, null, null, [[0, 9]]);
 };
 
 module.exports = connectMongoDB;
