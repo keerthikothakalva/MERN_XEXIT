@@ -8,7 +8,6 @@ const getAllResignations = async (req, res) => {
   try {
     const resignations = await adminLogics.getAllResignations();
 
-    
     return res.status(200).send({
       data: resignations || []
     });
@@ -24,22 +23,26 @@ const concludeResignation = async (req, res) => {
   try {
     const { resignationId, approved, lwd } = req.body;
 
-    
     if (!resignationId || approved === undefined) {
       return res.status(400).send({ message: 'Invalid request' });
     }
 
-    await adminLogics.concludeResignation(
+    const updated = await adminLogics.concludeResignation(
       resignationId,
       approved,
       lwd
     );
 
+    // 🔑 IMPORTANT FOR CYPRESS
+    if (!updated) {
+      return res.status(404).send({ message: 'Resignation not found' });
+    }
+
     return res.status(200).send({
       message: 'Resignation updated successfully'
     });
   } catch (err) {
-    return res.status(400).send({ message: err.message });
+    return res.status(500).send({ message: err.message });
   }
 };
 
@@ -50,7 +53,6 @@ const getExitResponses = async (req, res) => {
   try {
     const responses = await adminLogics.getAllExitResponses();
 
-    
     return res.status(200).send({
       data: responses || []
     });

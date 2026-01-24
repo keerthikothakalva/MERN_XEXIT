@@ -1,8 +1,12 @@
 const jwt = require('jsonwebtoken');
-const Resign = require('../models/resign.model');
+const ResignInfo = require('../models/resign.model');
 const ExitResponse = require('../models/exitResponse.model');
 
 class AdminService {
+
+  // =====================
+  // VERIFY ADMIN TOKEN
+  // =====================
   verifyToken(token) {
     try {
       return jwt.verify(token, process.env.SECREATE_KEY);
@@ -15,26 +19,19 @@ class AdminService {
   // GET ALL RESIGNATIONS
   // =====================
   async getAllResignations() {
-    return await Resign.find();
+    return await ResignInfo.find().populate('employeeId');
   }
 
   // =====================
-  // UPDATE RESIGNATION
+  // CONCLUDE RESIGNATION
   // =====================
-  async updateResignationStatus(resignationId, status) {
-    return await Resign.findByIdAndUpdate(
-      resignationId,
-      { status },
-      { new: true }
-    );
-  }
-
-  // 🔥 REQUIRED BY CYPRESS
   async concludeResignation(resignationId, approved, lwd) {
-    return await Resign.findByIdAndUpdate(
+    if (!resignationId) return null;
+
+    return await ResignInfo.findByIdAndUpdate(
       resignationId,
       {
-        status: approved ? 'Approved' : 'Rejected',
+        status: approved ? 'approved' : 'rejected',
         lwd
       },
       { new: true }
@@ -42,10 +39,10 @@ class AdminService {
   }
 
   // =====================
-  // GET EXIT RESPONSES
+  // GET ALL EXIT RESPONSES
   // =====================
   async getAllExitResponses() {
-    return await ExitResponse.find();
+    return await ExitResponse.find().populate('employeeId');
   }
 }
 

@@ -14,7 +14,7 @@ var connectMongoDB = function connectMongoDB() {
             break;
           }
 
-          console.log('⚠️ MONGODB_URI not found. Skipping DB connection.');
+          console.log('MONGODB_URI not found. Skipping DB connection.');
           return _context.abrupt("return");
 
         case 4:
@@ -22,14 +22,14 @@ var connectMongoDB = function connectMongoDB() {
           return regeneratorRuntime.awrap(mongoose.connect(process.env.MONGODB_URI));
 
         case 6:
-          console.log('✅ MongoDB connected');
+          console.log('MongoDB connected');
           _context.next = 12;
           break;
 
         case 9:
           _context.prev = 9;
           _context.t0 = _context["catch"](0);
-          console.log('⚠️ MongoDB connection failed. Continuing without DB.');
+          console.error('MongoDB connection failed:', _context.t0.message);
 
         case 12:
         case "end":

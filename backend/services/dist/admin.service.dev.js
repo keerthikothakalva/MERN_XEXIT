@@ -8,7 +8,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
 var jwt = require('jsonwebtoken');
 
-var Resign = require('../models/resign.model');
+var ResignInfo = require('../models/resign.model');
 
 var ExitResponse = require('../models/exitResponse.model');
 
@@ -21,6 +21,9 @@ function () {
 
   _createClass(AdminService, [{
     key: "verifyToken",
+    // =====================
+    // VERIFY ADMIN TOKEN
+    // =====================
     value: function verifyToken(token) {
       try {
         return jwt.verify(token, process.env.SECREATE_KEY);
@@ -39,7 +42,7 @@ function () {
           switch (_context.prev = _context.next) {
             case 0:
               _context.next = 2;
-              return regeneratorRuntime.awrap(Resign.find());
+              return regeneratorRuntime.awrap(ResignInfo.find().populate('employeeId'));
 
             case 2:
               return _context.abrupt("return", _context.sent);
@@ -51,48 +54,54 @@ function () {
         }
       });
     } // =====================
-    // UPDATE RESIGNATION
+    // CONCLUDE RESIGNATION
     // =====================
 
   }, {
-    key: "updateResignationStatus",
-    value: function updateResignationStatus(resignationId, status) {
-      return regeneratorRuntime.async(function updateResignationStatus$(_context2) {
+    key: "concludeResignation",
+    value: function concludeResignation(resignationId, approved, lwd) {
+      return regeneratorRuntime.async(function concludeResignation$(_context2) {
         while (1) {
           switch (_context2.prev = _context2.next) {
             case 0:
-              _context2.next = 2;
-              return regeneratorRuntime.awrap(Resign.findByIdAndUpdate(resignationId, {
-                status: status
+              if (resignationId) {
+                _context2.next = 2;
+                break;
+              }
+
+              return _context2.abrupt("return", null);
+
+            case 2:
+              _context2.next = 4;
+              return regeneratorRuntime.awrap(ResignInfo.findByIdAndUpdate(resignationId, {
+                status: approved ? 'approved' : 'rejected',
+                lwd: lwd
               }, {
                 "new": true
               }));
 
-            case 2:
+            case 4:
               return _context2.abrupt("return", _context2.sent);
 
-            case 3:
+            case 5:
             case "end":
               return _context2.stop();
           }
         }
       });
-    } // 🔥 REQUIRED BY CYPRESS
+    } // =====================
+    // GET ALL EXIT RESPONSES
+    // =====================
 
   }, {
-    key: "concludeResignation",
-    value: function concludeResignation(resignationId, approved, lwd) {
-      return regeneratorRuntime.async(function concludeResignation$(_context3) {
+    key: "getAllExitResponses",
+    value: function getAllExitResponses() {
+      return regeneratorRuntime.async(function getAllExitResponses$(_context3) {
         while (1) {
           switch (_context3.prev = _context3.next) {
             case 0:
               _context3.next = 2;
-              return regeneratorRuntime.awrap(Resign.findByIdAndUpdate(resignationId, {
-                status: approved ? 'Approved' : 'Rejected',
-                lwd: lwd
-              }, {
-                "new": true
-              }));
+              return regeneratorRuntime.awrap(ExitResponse.find().populate('employeeId'));
 
             case 2:
               return _context3.abrupt("return", _context3.sent);
@@ -100,29 +109,6 @@ function () {
             case 3:
             case "end":
               return _context3.stop();
-          }
-        }
-      });
-    } // =====================
-    // GET EXIT RESPONSES
-    // =====================
-
-  }, {
-    key: "getAllExitResponses",
-    value: function getAllExitResponses() {
-      return regeneratorRuntime.async(function getAllExitResponses$(_context4) {
-        while (1) {
-          switch (_context4.prev = _context4.next) {
-            case 0:
-              _context4.next = 2;
-              return regeneratorRuntime.awrap(ExitResponse.find());
-
-            case 2:
-              return _context4.abrupt("return", _context4.sent);
-
-            case 3:
-            case "end":
-              return _context4.stop();
           }
         }
       });

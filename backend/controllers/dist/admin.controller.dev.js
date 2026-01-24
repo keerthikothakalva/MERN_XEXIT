@@ -41,7 +41,7 @@ var getAllResignations = function getAllResignations(req, res) {
 
 
 var concludeResignation = function concludeResignation(req, res) {
-  var _req$body, resignationId, approved, lwd;
+  var _req$body, resignationId, approved, lwd, updated;
 
   return regeneratorRuntime.async(function concludeResignation$(_context2) {
     while (1) {
@@ -64,23 +64,35 @@ var concludeResignation = function concludeResignation(req, res) {
           return regeneratorRuntime.awrap(adminLogics.concludeResignation(resignationId, approved, lwd));
 
         case 6:
+          updated = _context2.sent;
+
+          if (updated) {
+            _context2.next = 9;
+            break;
+          }
+
+          return _context2.abrupt("return", res.status(404).send({
+            message: 'Resignation not found'
+          }));
+
+        case 9:
           return _context2.abrupt("return", res.status(200).send({
             message: 'Resignation updated successfully'
           }));
 
-        case 9:
-          _context2.prev = 9;
+        case 12:
+          _context2.prev = 12;
           _context2.t0 = _context2["catch"](0);
-          return _context2.abrupt("return", res.status(400).send({
+          return _context2.abrupt("return", res.status(500).send({
             message: _context2.t0.message
           }));
 
-        case 12:
+        case 15:
         case "end":
           return _context2.stop();
       }
     }
-  }, null, null, [[0, 9]]);
+  }, null, null, [[0, 12]]);
 }; // =====================
 // GET EXIT RESPONSES
 // =====================
