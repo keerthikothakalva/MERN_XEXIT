@@ -1,5 +1,10 @@
 const employeeLogics = require('../services/employee.service.js');
 const allEmployeeLogics = new employeeLogics();
+const mongoose = require('mongoose');
+const memoryStore = require('../utils/memoryStore');
+
+const isDBConnected = () => mongoose.connection.readyState === 1;
+
 
 // =====================
 // REGISTER
@@ -8,6 +13,18 @@ const registerNewUser = async (req, res) => {
   try {
     const { username, password } = req.body;
 
+    
+    if (!isDBConnected()) {
+      const exists = memoryStore.users.find(u => u.username === username);
+      if (exists) {
+        return res.status(400).send({ message: 'User already exists' });
+      }
+
+      memoryStore.users.push({ username, password, role: 'employee' });
+      return res.status(201).send({ message: 'User registered successfully' });
+    }
+
+    
     const existingUser = await allEmployeeLogics.getUserByName(username);
     if (existingUser) {
       return res.status(400).send({ message: 'User already exists' });
@@ -19,13 +36,12 @@ const registerNewUser = async (req, res) => {
       role: 'employee'
     });
 
-    return res.status(201).send({
-      message: 'User registered successfully'
-    });
+    return res.status(201).send({ message: 'User registered successfully' });
   } catch (err) {
     return res.status(500).send({ message: err.message });
   }
 };
+
 
 // =====================
 // LOGIN
@@ -34,6 +50,24 @@ const loginUser = async (req, res) => {
   try {
     const { username, password } = req.body;
 
+    // ✅ MEMORY MODE
+    if (!isDBConnected()) {
+      const user = memoryStore.users.find(
+        u => u.username === username && u.password === password
+      );
+
+      if (!user) {
+        return res.status(401).send({ message: 'Invalid credentials' });
+      }
+
+      return res.status(200).send({
+        message: 'Login successful',
+        token: 'dummy-token',
+        role: user.role
+      });
+    }
+
+    // ✅ DB MODE
     const user = await allEmployeeLogics.getUserByName(username);
     if (!user) {
       return res.status(401).send({ message: 'Invalid credentials' });
@@ -63,6 +97,7 @@ const loginUser = async (req, res) => {
   }
 };
 
+
 // =====================
 // SUBMIT RESIGNATION
 // =====================
@@ -70,24 +105,37 @@ const newUserResign = async (req, res) => {
   try {
     const { lwd } = req.body;
 
+    // ✅ MEMORY MODE
+    if (!isDBConnected()) {
+      const resignation = {
+        _id: Date.now().toString(),
+        employeeId: req.user?.id || 'memory-user',
+        lwd,
+        status: 'pending'
+      };
+
+      memoryStore.employees.push(resignation);
+
+      return res.status(200).send({
+        data: { resignation: { _id: resignation._id } }
+      });
+    }
+
+    // ✅ DB MODE
     const resignation = await allEmployeeLogics.addResignOfEmployee({
       employeeId: req.user._id,
       lwd,
       status: 'pending'
     });
 
-  return res.status(200).send({
-  data: {
-    resignation: {
-      _id: resignation._id
-    }
-  }
-});
-
+    return res.status(200).send({
+      data: { resignation: { _id: resignation._id } }
+    });
   } catch (err) {
     return res.status(400).send({ message: err.message });
   }
 };
+
 
 // =====================
 // SUBMIT EXIT RESPONSES

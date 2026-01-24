@@ -2,9 +2,18 @@
 
 var AdminLogics = require('../services/admin.service');
 
-var adminLogics = new AdminLogics(); // =====================
+var adminLogics = new AdminLogics();
+
+var mongoose = require('mongoose');
+
+var memoryStore = require('../utils/memoryStore');
+
+var isDBConnected = function isDBConnected() {
+  return mongoose.connection.readyState === 1;
+}; // =====================
 // GET ALL RESIGNATIONS
 // =====================
+
 
 var getAllResignations = function getAllResignations(req, res) {
   var resignations;
@@ -13,42 +22,53 @@ var getAllResignations = function getAllResignations(req, res) {
       switch (_context.prev = _context.next) {
         case 0:
           _context.prev = 0;
-          _context.next = 3;
-          return regeneratorRuntime.awrap(adminLogics.getAllResignations());
+
+          if (isDBConnected()) {
+            _context.next = 3;
+            break;
+          }
+
+          return _context.abrupt("return", res.status(200).send({
+            data: memoryStore.employees
+          }));
 
         case 3:
+          _context.next = 5;
+          return regeneratorRuntime.awrap(adminLogics.getAllResignations());
+
+        case 5:
           resignations = _context.sent;
           return _context.abrupt("return", res.status(200).send({
             data: resignations || []
           }));
 
-        case 7:
-          _context.prev = 7;
+        case 9:
+          _context.prev = 9;
           _context.t0 = _context["catch"](0);
           return _context.abrupt("return", res.status(500).send({
             message: _context.t0.message
           }));
 
-        case 10:
+        case 12:
         case "end":
           return _context.stop();
       }
     }
-  }, null, null, [[0, 7]]);
+  }, null, null, [[0, 9]]);
 }; // =====================
 // CONCLUDE RESIGNATION
 // =====================
 
 
 var concludeResignation = function concludeResignation(req, res) {
-  var _req$body, resignationId, approved, lwd, updated;
+  var _req$body, resignationId, approved, resign, updated;
 
   return regeneratorRuntime.async(function concludeResignation$(_context2) {
     while (1) {
       switch (_context2.prev = _context2.next) {
         case 0:
           _context2.prev = 0;
-          _req$body = req.body, resignationId = _req$body.resignationId, approved = _req$body.approved, lwd = _req$body.lwd;
+          _req$body = req.body, resignationId = _req$body.resignationId, approved = _req$body.approved;
 
           if (!(!resignationId || approved === undefined)) {
             _context2.next = 4;
@@ -60,14 +80,17 @@ var concludeResignation = function concludeResignation(req, res) {
           }));
 
         case 4:
-          _context2.next = 6;
-          return regeneratorRuntime.awrap(adminLogics.concludeResignation(resignationId, approved, lwd));
+          if (isDBConnected()) {
+            _context2.next = 10;
+            break;
+          }
 
-        case 6:
-          updated = _context2.sent;
+          resign = memoryStore.employees.find(function (r) {
+            return r._id === resignationId;
+          });
 
-          if (updated) {
-            _context2.next = 9;
+          if (resign) {
+            _context2.next = 8;
             break;
           }
 
@@ -75,24 +98,46 @@ var concludeResignation = function concludeResignation(req, res) {
             message: 'Resignation not found'
           }));
 
-        case 9:
+        case 8:
+          resign.status = approved ? 'approved' : 'rejected';
           return _context2.abrupt("return", res.status(200).send({
             message: 'Resignation updated successfully'
           }));
 
+        case 10:
+          _context2.next = 12;
+          return regeneratorRuntime.awrap(adminLogics.concludeResignation(resignationId, approved));
+
         case 12:
-          _context2.prev = 12;
+          updated = _context2.sent;
+
+          if (updated) {
+            _context2.next = 15;
+            break;
+          }
+
+          return _context2.abrupt("return", res.status(404).send({
+            message: 'Resignation not found'
+          }));
+
+        case 15:
+          return _context2.abrupt("return", res.status(200).send({
+            message: 'Resignation updated successfully'
+          }));
+
+        case 18:
+          _context2.prev = 18;
           _context2.t0 = _context2["catch"](0);
           return _context2.abrupt("return", res.status(500).send({
             message: _context2.t0.message
           }));
 
-        case 15:
+        case 21:
         case "end":
           return _context2.stop();
       }
     }
-  }, null, null, [[0, 12]]);
+  }, null, null, [[0, 18]]);
 }; // =====================
 // GET EXIT RESPONSES
 // =====================

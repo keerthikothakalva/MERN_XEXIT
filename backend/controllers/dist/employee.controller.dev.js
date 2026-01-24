@@ -2,9 +2,18 @@
 
 var employeeLogics = require('../services/employee.service.js');
 
-var allEmployeeLogics = new employeeLogics(); // =====================
+var allEmployeeLogics = new employeeLogics();
+
+var mongoose = require('mongoose');
+
+var memoryStore = require('../utils/memoryStore');
+
+var isDBConnected = function isDBConnected() {
+  return mongoose.connection.readyState === 1;
+}; // =====================
 // REGISTER
 // =====================
+
 
 var registerNewUser = function registerNewUser(req, res) {
   var _req$body, username, password, existingUser;
