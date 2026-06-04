@@ -27,13 +27,9 @@ var adminRouter = require('./routes/admin.route.js');
 app.use('/api/auth', authRouter);
 app.use('/api/user', employeeRouter);
 app.use('/api/admin', adminRouter);
-
-if (require.main === module) {
-  connectMongoDB();
-  app.listen(PORT, function () {
-    console.log("Backend is listening on PORT ".concat(PORT));
-  });
-}
-
+connectMongoDB();
+app.listen(PORT, function () {
+  console.log("Backend is listening on PORT ".concat(PORT));
+});
 module.exports = app;
 //# sourceMappingURL=index.dev.js.map

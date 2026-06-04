@@ -1,88 +1,96 @@
 import React, { useState } from 'react';
-import api from '../api';
-import { TextField, Button, Container, Typography, Grid } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import {
+  Paper,
+  Typography,
+  TextField,
+  Button,
+  Box
+} from '@mui/material';
+import api from '../api'; 
+function RegistrationForm() {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
 
-const RegistrationForm = () => {
-    const [formData, setFormData] = useState({
-        username: '',
-        password: '',
-        email: ''
-    });
+  const navigate = useNavigate(); 
 
-    const handleChange = (e) => {
-        setFormData(prev => ({
-            ...prev,
-            [e.target.name]: e.target.value.trim() // trim spaces
-        }));
-    };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    try {
+      await api.post('/auth/register', {
+        username,
+        password
+      });
 
-        try {
-            await api.post('/api/auth/register', {
-                username: formData.username,
-                password: formData.password,
-                email: formData.email
-            });
+      // navigate works now
+      navigate('/login');
 
-            alert('Registration successful!');
-        } catch (error) {
-            console.error(error.response?.data);
-            alert(error.response?.data?.message || 'Registration failed');
-        }
-    };
+    } catch (err) {
+  console.error("ERROR:", err.response?.data);
 
-    return (
-        <Container>
-            <Typography variant="h4">Register</Typography>
+    }
+  };
 
-            <form onSubmit={handleSubmit}>
-                <Grid container spacing={2}>
-                    <Grid item xs={12}>
-                        <TextField
-                            label="Username"
-                            name="username"
-                            value={formData.username}
-                            onChange={handleChange}
-                            required
-                            fullWidth
-                        />
-                    </Grid>
+  return (
+    <Box
+      sx={{
+        height: '90vh',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#f5f5f5'
+      }}
+    >
+      <Paper
+        elevation={4}
+        sx={{
+          padding: 4,
+          width: '100%',
+          maxWidth: 400,
+          borderRadius: 3
+        }}
+      >
+        <Typography variant="h5" fontWeight="bold" gutterBottom>
+          Register
+        </Typography>
 
-                    <Grid item xs={12}>
-                        <TextField
-                            label="Password"
-                            name="password"
-                            type="password"
-                            value={formData.password}
-                            onChange={handleChange}
-                            required
-                            fullWidth
-                        />
-                    </Grid>
+        <form onSubmit={handleSubmit}>
+          <TextField
+            label="Username"
+            fullWidth
+            margin="normal"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+          />
 
-                    <Grid item xs={12}>
-                        <TextField
-                            label="Email"
-                            name="email"
-                            type="email"
-                            value={formData.email}
-                            onChange={handleChange}
-                            required
-                            fullWidth
-                        />
-                    </Grid>
+          <TextField
+            label="Password"
+            type="password"
+            fullWidth
+            margin="normal"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
 
-                    <Grid item xs={12}>
-                        <Button type="submit" variant="contained">
-                            Register
-                        </Button>
-                    </Grid>
-                </Grid>
-            </form>
-        </Container>
-    );
-};
+          <Button
+            type="submit"
+            variant="contained"
+            fullWidth
+            sx={{
+              mt: 2,
+              py: 1.2,
+              fontWeight: 'bold'
+            }}
+          >
+            Register
+          </Button>
+        </form>
+      </Paper>
+    </Box>
+  );
+}
 
 export default RegistrationForm;

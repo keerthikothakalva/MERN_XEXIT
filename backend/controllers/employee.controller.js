@@ -11,13 +11,19 @@ const isDBConnected = () => mongoose.connection.readyState === 1;
 // =====================
 const registerNewUser = async (req, res) => {
   try {
-    const { username, password } = req.body;
+    const { username, password } = req.body || {};
+
+    if (!username || !password) {
+      return res.status(400).send({
+        message: "username and password required"
+      });
+    }
 
     
     if (!isDBConnected()) {
       const exists = memoryStore.users.find(u => u.username === username);
       if (exists) {
-        return res.status(400).send({ message: 'User already exists' });
+        return res.status(400).json({ message: 'User already exists' });
       }
 
       memoryStore.users.push({ username, password, role: 'employee' });
@@ -31,10 +37,10 @@ const registerNewUser = async (req, res) => {
     }
 
     await allEmployeeLogics.registerUser({
-      username,
-      password,
-      role: 'employee'
-    });
+  username,
+  password,
+  role: username === 'admin' ? 'HR' : 'employee'
+});
 
     return res.status(201).send({ message: 'User registered successfully' });
   } catch (err) {

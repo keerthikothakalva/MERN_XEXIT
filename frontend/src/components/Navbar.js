@@ -1,48 +1,30 @@
 import React from 'react';
-import { AppBar, Toolbar, Typography, Button, Box, Container } from '@mui/material';
-import { Link } from 'react-router-dom';
+import { AppBar, Toolbar, Typography, Button, Box } from '@mui/material';
 
-function Navbar({ isAuthenticated, role, handleLogout }) {
-    return (
-        <AppBar position="static">
-            <Toolbar>
-                <Container sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    {/* Title */}
-                    <Typography variant="h6">
-                        Employee Management System
-                    </Typography>
+function Navbar({ role, handleLogout }) {
+  const username = localStorage.getItem('username');
 
-                    {/* Buttons */}
-                    <Box>
-                        {!isAuthenticated ? (
-                            <>
-                                <Button color="inherit" component={Link} to="/login" sx={{ marginRight: 2 }}>
-                                    Login
-                                </Button>
-                                <Button color="inherit" component={Link} to="/register">
-                                    Register
-                                </Button>
-                            </>
-                        ) : (
-                            <>
-                                <Button
-                                    color="inherit"
-                                    component={Link}
-                                    to={role === 'HR' ? '/admin' : '/employee'}
-                                    sx={{ marginRight: 2 }}
-                                >
-                                    Dashboard
-                                </Button>
-                                <Button color="inherit" onClick={handleLogout}>
-                                    Logout
-                                </Button>
-                            </>
-                        )}
-                    </Box>
-                </Container>
-            </Toolbar>
-        </AppBar>
-    );
+  return (
+    <AppBar position="static">
+      <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
+
+        <Typography variant="h6">
+          Exit Management System
+        </Typography>
+
+        <Box display="flex" alignItems="center" gap={2}>
+          <Typography sx={{ fontWeight: 'bold' }}>
+            {username} ({role})
+          </Typography>
+
+          <Button color="inherit" onClick={handleLogout}>
+            Logout
+          </Button>
+        </Box>
+
+      </Toolbar>
+    </AppBar>
+  );
 }
 
 export default Navbar;

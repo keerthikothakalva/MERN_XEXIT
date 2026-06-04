@@ -1,0 +1,17 @@
+{
+  "name": "keerthikothakalva1729-me_mern_xexit",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://gitlab.crio.do/COHORT_ME_MERN_XEXIT_ENROLL_1729673814382/keerthikothakalva1729-ME_MERN_XEXIT.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
+}
