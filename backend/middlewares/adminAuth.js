@@ -38,5 +38,5 @@ const validateAdminAuth = async (req, res, next) => {
 
 module.exports = {
   validateAdminAuth,
-  validateAdminActions
+
 };

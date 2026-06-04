@@ -75,7 +75,6 @@ var validateAdminAuth = function validateAdminAuth(req, res, next) {
 };
 
 module.exports = {
-  validateAdminAuth: validateAdminAuth,
-  validateAdminActions: validateAdminActions
+  validateAdminAuth: validateAdminAuth
 };
 //# sourceMappingURL=adminAuth.dev.js.map
