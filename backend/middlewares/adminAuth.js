@@ -4,51 +4,37 @@ const memoryStore = require('../utils/memoryStore');
 
 const validateAdminAuth = async (req, res, next) => {
   try {
-    let token = req.headers.authorization;
+    const authHeader = req.headers.authorization;
 
-    if (!token) {
-      return res.status(401).json({ message: 'Unauthorized' });
+    if (!authHeader) {
+      return res.status(401).json({ message: 'No token provided' });
     }
 
-    
-    if (token.startsWith('Bearer ')) {
-      token = token.split(' ')[1];
-    }
+    const token = authHeader.startsWith('Bearer ')
+      ? authHeader.split(' ')[1]
+      : authHeader;
 
-    
-    if (token === 'dummy-token') {
-      const admin = memoryStore.users.find(u => u.role === 'admin');
-
-      if (!admin) {
-        return res.status(403).json({ message: 'Admin access required' });
-      }
-
-      req.admin = admin;
-      return next();
-    }
-
-    
     const decoded = allEmployeeLogics.compareToken(token);
+
     if (!decoded || !decoded.id) {
-      return res.status(401).json({ message: 'Unauthorized' });
+      return res.status(401).json({ message: 'Invalid token' });
     }
 
     const user = await allEmployeeLogics.findUserById(decoded.id);
-    if (!user || user.role !== 'admin') {
+
+    if (!user || user.role !== 'HR') {
       return res.status(403).json({ message: 'Admin access required' });
     }
 
     req.admin = user;
     next();
-  } catch {
+
+  } catch (err) {
     return res.status(401).json({ message: 'Unauthorized' });
   }
 };
 
 
-const validateAdminActions = (req, res, next) => {
-  next();
-};
 
 module.exports = {
   validateAdminAuth,
