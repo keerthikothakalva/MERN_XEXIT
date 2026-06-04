@@ -20,9 +20,9 @@ function LoginForm({ handleLogin }) {
 
     let { token, role } = response.data;
 
-   if (username === "admin" || username === "hr") {
-  role = "HR";
-}
+    console.log("TOKEN:", token);
+
+   
 
     localStorage.setItem('token', token);
     localStorage.setItem('username', username);
