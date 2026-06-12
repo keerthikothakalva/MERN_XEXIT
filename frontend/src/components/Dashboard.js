@@ -29,7 +29,7 @@ function Dashboard() {
     setLoading(false);
   }, []);
 
-  // 🎨 Status Color
+  
   const getStatusColor = () => {
     if (status === 'approved') return 'success';
     if (status === 'pending') return 'warning';
@@ -37,7 +37,7 @@ function Dashboard() {
     return 'default';
   };
 
-  // ⏳ Loading UI
+  
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" mt={10}>
@@ -72,10 +72,10 @@ function Dashboard() {
         </Box>
       </Paper>
 
-      {/* MAIN CONTENT */}
+      
       <Grid container spacing={3}>
 
-        {/* NONE → SHOW FORM */}
+        
         {status === 'none' && (
           <Grid item xs={12}>
             <ResignationForm setStatus={setStatus} />
@@ -87,7 +87,7 @@ function Dashboard() {
           <Grid item xs={12}>
             <Paper sx={{ p: 3 }}>
               <Typography color="warning.main">
-                Your resignation is under review ⏳
+                Your resignation is under review 
               </Typography>
             </Paper>
           </Grid>
@@ -98,7 +98,7 @@ function Dashboard() {
           <Grid item xs={12}>
             <Paper sx={{ p: 3 }}>
               <Typography color="success.main" mb={2}>
-                Resignation Approved ✅
+                Resignation Approved 
               </Typography>
 
               <ExitInterviewForm />
@@ -111,7 +111,7 @@ function Dashboard() {
           <Grid item xs={12}>
             <Paper sx={{ p: 3 }}>
               <Typography color="error.main">
-                Resignation Rejected ❌
+                Resignation Rejected 
               </Typography>
             </Paper>
           </Grid>

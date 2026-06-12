@@ -35,7 +35,7 @@ function ManageRequests() {
   try {
     setLoading(true);
 
-    const res = await api.get('/admin/resignations');
+    const res = await api.get('/api/admin/resignations');
 
     const list = Array.isArray(res.data)
       ? res.data
@@ -51,12 +51,12 @@ function ManageRequests() {
   }
 };
 
-  // ✅ APPROVE / REJECT
+  // APPROVE / REJECT
   const handleAction = async (id, status) => {
     const exitDate = selectedLwd[id];
 
     if (!exitDate) {
-      setError('Please select exit date ❗');
+      setError('Please select exit date');
       return;
     }
 
@@ -64,21 +64,21 @@ function ManageRequests() {
       await api.put('/admin/conclude_resignation', {
         id,
         status: status.toLowerCase(),
-        lwd: exitDate // ✅ REQUIRED for backend
+        lwd: exitDate 
       });
 
-      setMessage(`Request ${status} successfully ✅`);
+      setMessage(`Request ${status} successfully`);
 
-      // 🔄 refresh table
+      // 
       fetchData();
 
     } catch (err) {
       console.error(err);
-      setError(err.response?.data?.message || 'Update failed ❌');
+      setError(err.response?.data?.message || 'Update failed');
     }
   };
 
-  // ✅ STATUS COLOR FIX
+  
   const getStatusColor = (status) => {
     const s = status?.toLowerCase();
     if (s === 'approved') return 'success';
@@ -86,7 +86,7 @@ function ManageRequests() {
     return 'warning';
   };
 
-  // ⏳ LOADING
+  
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" mt={10}>
@@ -189,7 +189,7 @@ function ManageRequests() {
         </Table>
       </TableContainer>
 
-      {/* ✅ SUCCESS */}
+      {/* SUCCESS */}
       <Snackbar
         open={!!message}
         autoHideDuration={3000}
@@ -198,7 +198,7 @@ function ManageRequests() {
         <Alert severity="success">{message}</Alert>
       </Snackbar>
 
-      {/* ❌ ERROR */}
+      
       <Snackbar
         open={!!error}
         autoHideDuration={3000}

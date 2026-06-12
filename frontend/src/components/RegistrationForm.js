@@ -15,23 +15,20 @@ function RegistrationForm() {
   const navigate = useNavigate(); 
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    try {
-      await api.post('/auth/register', {
-        username,
-        password
-      });
+  try {
+    await api.post('/api/auth/register', {  
+      username,
+      password
+    });
 
-      // navigate works now
-      navigate('/login');
+    navigate('/login');
 
-    } catch (err) {
-  console.error("ERROR:", err.response?.data);
-
-    }
-  };
-
+  } catch (err) {
+    console.error("ERROR:", err.response?.data);
+  }
+};
   return (
     <Box
       sx={{

@@ -31,10 +31,10 @@ function ResignationForm({ setStatus }) {
 
         try {
             
-            await api.post('/user/resign', {
-                lwd: lastWorkingDay,
-                reason: reason.trim()
-            });
+           await api.post('/api/user/resign', {
+    lwd: lastWorkingDay,
+    reason: reason.trim()
+});
 
             setSuccessMessage('Resignation submitted successfully');
 

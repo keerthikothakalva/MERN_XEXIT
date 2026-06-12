@@ -29,8 +29,8 @@ function ExitInterviewForm() {
         }
 
         try {
-            // ✅ FIXED ENDPOINT (most common backend naming)
-            await api.post('/user/responses', {
+            
+            await api.post('/api/user/responses', {
                 feedback: feedback.trim()
             });
 
@@ -40,7 +40,7 @@ function ExitInterviewForm() {
         } catch (err) {
             console.error("EXIT ERROR:", err.response || err);
 
-            // ✅ better error message
+            
             if (err.response?.status === 404) {
                 setError('API route not found(check backend)');
             } else if (err.response?.status === 400) {

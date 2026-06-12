@@ -31,7 +31,7 @@ const AdminDashboard = () => {
     try {
       setLoading(true);
 
-      const response = await api.get('/admin/resignations');
+      const response = await api.get('/api/admin/resignations');
 
       setResignationRequests(
         Array.isArray(response.data)

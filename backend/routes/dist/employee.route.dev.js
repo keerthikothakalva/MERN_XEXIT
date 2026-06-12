@@ -10,8 +10,7 @@ var _require = require('../controllers/employee.controller'),
     deleteResign = _require.deleteResign;
 
 var _require2 = require('../middlewares/employee.middleware'),
-    validateEmployeeAuth = _require2.validateEmployeeAuth; // 🔥 THESE MUST BE FUNCTIONS
-
+    validateEmployeeAuth = _require2.validateEmployeeAuth;
 
 router.post('/resign', validateEmployeeAuth, newUserResign);
 router.post('/responses', validateEmployeeAuth, submitExitResponses);

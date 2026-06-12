@@ -11,7 +11,7 @@ const {
   validateEmployeeAuth
 } = require('../middlewares/employee.middleware');
 
-// 🔥 THESE MUST BE FUNCTIONS
+
 router.post('/resign', validateEmployeeAuth, newUserResign);
 router.post('/responses', validateEmployeeAuth, submitExitResponses);
 router.delete('/resign', validateEmployeeAuth, deleteResign);
