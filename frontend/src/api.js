@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'https://keerthikothakalva1729-me-mern-xexit.onrender.com/api',
+    baseURL: 'https://keerthikothakalva1729-me-mern-xexit.onrender.com',
     headers: {
         'Content-Type': 'application/json'
     }

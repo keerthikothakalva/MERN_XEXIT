@@ -16,19 +16,23 @@ function LoginForm({ handleLogin }) {
   try {
     const response = await api.post('/auth/login', { username, password });
 
-    console.log("LOGIN RESPONSE:", response.data);
+console.log("LOGIN RESPONSE:", response.data);
 
-    let { token, role } = response.data;
+const token = response.data.token;
+const role = response.data.role;
 
-    console.log("TOKEN:", token);
+console.log("TOKEN:", token);
 
-   
+if (!token) {
+  setError("Login failed: No token received from server");
+  return;
+}
 
-    localStorage.setItem('token', token);
-    localStorage.setItem('username', username);
-    localStorage.setItem('role', role?.toUpperCase());
+localStorage.setItem('token', token);
+localStorage.setItem('username', username);
+localStorage.setItem('role', role?.toUpperCase());
 
-    handleLogin(role);
+handleLogin(role);
 
   } catch (err) {
     console.error(err);
