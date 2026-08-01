@@ -5,7 +5,7 @@ var EmployeeLogics = require('../services/employee.service');
 var allEmployeeLogics = new EmployeeLogics();
 
 var validateAdminAuth = function validateAdminAuth(req, res, next) {
-  var authHeader, token, decoded;
+  var authHeader, token, decoded, role;
   return regeneratorRuntime.async(function validateAdminAuth$(_context) {
     while (1) {
       switch (_context.prev = _context.next) {
@@ -25,9 +25,10 @@ var validateAdminAuth = function validateAdminAuth(req, res, next) {
         case 4:
           token = authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : authHeader;
           decoded = allEmployeeLogics.compareToken(token);
+          console.log('DECODED ADMIN TOKEN:', decoded);
 
           if (!(!decoded || !decoded.id)) {
-            _context.next = 8;
+            _context.next = 9;
             break;
           }
 
@@ -35,9 +36,11 @@ var validateAdminAuth = function validateAdminAuth(req, res, next) {
             message: 'Invalid token'
           }));
 
-        case 8:
-          if (!(decoded.role !== 'admin')) {
-            _context.next = 10;
+        case 9:
+          role = String(decoded.role || '').toLowerCase();
+
+          if (!(role !== 'admin')) {
+            _context.next = 12;
             break;
           }
 
@@ -45,30 +48,30 @@ var validateAdminAuth = function validateAdminAuth(req, res, next) {
             message: 'Admin access required'
           }));
 
-        case 10:
+        case 12:
           req.admin = {
             _id: decoded.id,
             id: decoded.id,
-            role: decoded.role
+            role: 'admin'
           };
           next();
-          _context.next = 18;
+          _context.next = 20;
           break;
 
-        case 14:
-          _context.prev = 14;
+        case 16:
+          _context.prev = 16;
           _context.t0 = _context["catch"](0);
           console.error('validateAdminAuth error:', _context.t0.message);
           return _context.abrupt("return", res.status(401).json({
             message: 'Unauthorized'
           }));
 
-        case 18:
+        case 20:
         case "end":
           return _context.stop();
       }
     }
-  }, null, null, [[0, 14]]);
+  }, null, null, [[0, 16]]);
 };
 
 module.exports = {

@@ -12,12 +12,13 @@ const validateAdminAuth = async (req, res, next) => {
       });
     }
 
-   
     const token = authHeader.startsWith('Bearer ')
       ? authHeader.split(' ')[1]
       : authHeader;
 
     const decoded = allEmployeeLogics.compareToken(token);
+
+    console.log('DECODED ADMIN TOKEN:', decoded);
 
     if (!decoded || !decoded.id) {
       return res.status(401).json({
@@ -25,24 +26,27 @@ const validateAdminAuth = async (req, res, next) => {
       });
     }
 
-    
-    if (decoded.role !== 'admin') {
+    const role = String(decoded.role || '').toLowerCase();
+
+    if (role !== 'admin') {
       return res.status(403).json({
         message: 'Admin access required'
       });
     }
 
-    
     req.admin = {
       _id: decoded.id,
       id: decoded.id,
-      role: decoded.role
+      role: 'admin'
     };
 
     next();
 
   } catch (err) {
-    console.error('validateAdminAuth error:', err.message);
+    console.error(
+      'validateAdminAuth error:',
+      err.message
+    );
 
     return res.status(401).json({
       message: 'Unauthorized'

@@ -2,7 +2,9 @@ const employeeLogics = require('../services/employee.service.js');
 const allEmployeeLogics = new employeeLogics();
 const mongoose = require('mongoose');
 const memoryStore = require('../utils/memoryStore');
-
+const ExitResponse = require(
+  '../models/exitResponse.model'
+);
 const isDBConnected = () => mongoose.connection.readyState === 1;
 
 
@@ -106,30 +108,51 @@ const loginUser = async (req, res) => {
 // =====================
 const newUserResign = async (req, res) => {
   try {
+    if (!isDBConnected()) {
+      return res.status(503).send({
+        message: 'Database is not connected'
+      });
+    }
+
     const { lwd } = req.body;
 
-    console.log('DB CONNECTED:', isDBConnected());
-    console.log('REQ USER:', req.user);
-    console.log('LWD:', lwd);
+    if (!lwd) {
+      return res.status(400).send({
+        message: 'Last working day is required'
+      });
+    }
 
-    const resignation = await allEmployeeLogics.addResignOfEmployee({
-      employeeId: req.user._id || req.user.id,
-      lwd,
-      status: 'pending'
-    });
+    const employeeId = req.user?._id || req.user?.id;
 
-    console.log('SAVED RESIGNATION:', resignation);
+    if (!employeeId) {
+      return res.status(401).send({
+        message: 'Employee authentication failed'
+      });
+    }
+
+    const resignation =
+      await allEmployeeLogics.addResignOfEmployee({
+        employeeId,
+        lwd,
+        status: 'pending'
+      });
+
+    console.log(
+      'RESIGNATION SAVED:',
+      resignation
+    );
 
     return res.status(200).send({
       data: {
-        resignation: {
-          _id: resignation._id
-        }
+        resignation
       }
     });
 
   } catch (err) {
-    console.error('RESIGN ERROR:', err);
+    console.error(
+      'RESIGNATION ERROR:',
+      err
+    );
 
     return res.status(400).send({
       message: err.message
@@ -142,20 +165,47 @@ const newUserResign = async (req, res) => {
 // =====================
 const submitExitResponses = async (req, res) => {
   try {
-    const response = {
-      employeeId: req.user?.id || 'memory-user',
-      responses: req.body.responses,  
-      submittedAt: new Date()
-    };
+    if (!isDBConnected()) {
+      return res.status(503).send({
+        message: 'Database is not connected'
+      });
+    }
 
-    
-    memoryStore.exitResponses.push(response);
+    const employeeId =
+      req.user?._id || req.user?.id;
+
+    if (!employeeId) {
+      return res.status(401).send({
+        message: 'Employee authentication failed'
+      });
+    }
+
+    const exitResponse =
+      await ExitResponse.create({
+        employeeId,
+        responses: req.body.responses
+      });
+
+    console.log(
+      'EXIT RESPONSE SAVED:',
+      exitResponse
+    );
 
     return res.status(200).send({
-      message: 'Exit questionnaire submitted successfully'
+      message:
+        'Exit questionnaire submitted successfully',
+      data: exitResponse
     });
+
   } catch (err) {
-    return res.status(500).send({ message: err.message });
+    console.error(
+      'EXIT RESPONSE ERROR:',
+      err
+    );
+
+    return res.status(500).send({
+      message: err.message
+    });
   }
 };
 
