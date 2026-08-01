@@ -10,7 +10,7 @@ var _axios = _interopRequireDefault(require("axios"));
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 var api = _axios["default"].create({
-  baseURL: 'https://keerthikothakalva1729-me-mern-xexit.onrender.com',
+  baseURL: 'https://mern-xexit-lmhz.onrender.com',
   headers: {
     'Content-Type': 'application/json'
   }
