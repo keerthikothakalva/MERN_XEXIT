@@ -56,25 +56,8 @@ const loginUser = async (req, res) => {
   try {
     const { username, password } = req.body;
 
-    
     if (!isDBConnected()) {
-      const user = memoryStore.users.find(
-        (u) =>
-          u.username === username &&
-          u.password === password
-      );
-
-      if (!user) {
-        return res.status(401).send({
-          message: 'Invalid credentials'
-        });
-      }
-
-      return res.status(200).send({
-        message: 'Login successful',
-        token: 'dummy-token',
-        role: user.role
-      });
+      
     }
 
     
@@ -88,11 +71,10 @@ const loginUser = async (req, res) => {
       });
     }
 
-    const isValid =
-      await allEmployeeLogics.validatePassword(
-        password,
-        user.password
-      );
+    const isValid = await allEmployeeLogics.validatePassword(
+      password,
+      user.password
+    );
 
     if (!isValid) {
       return res.status(401).send({
@@ -119,7 +101,6 @@ const loginUser = async (req, res) => {
     });
   }
 };
-
 // =====================
 // SUBMIT RESIGNATION
 // =====================

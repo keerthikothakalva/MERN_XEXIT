@@ -32,7 +32,7 @@ if (!token) {
 
 localStorage.setItem('token', token);
 localStorage.setItem('username', username);
-localStorage.setItem('role', role?.toUpperCase());
+localStorage.setItem('role', role);
 
 handleLogin(role);
 
