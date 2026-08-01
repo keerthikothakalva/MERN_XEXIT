@@ -138,6 +138,7 @@ function () {
       return ResignInfo.create({
         employeeId: payload.employeeId,
         lwd: payload.lwd,
+        reason: payload.reason || '',
         status: 'pending'
       });
     }

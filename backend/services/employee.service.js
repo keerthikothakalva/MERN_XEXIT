@@ -75,12 +75,13 @@ class EmployeeLogics {
   // ---------- RESIGNATION ----------
 
   addResignOfEmployee(payload) {
-    return ResignInfo.create({
-      employeeId: payload.employeeId,
-      lwd: payload.lwd,
-      status: 'pending'
-    });
-  }
+  return ResignInfo.create({
+    employeeId: payload.employeeId,
+    lwd: payload.lwd,
+    reason: payload.reason || '',
+    status: 'pending'
+  });
+}
 
   findResignData(employeeId) {
     return ResignInfo.findOne({

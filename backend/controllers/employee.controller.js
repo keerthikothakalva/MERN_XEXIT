@@ -108,13 +108,7 @@ const loginUser = async (req, res) => {
 // =====================
 const newUserResign = async (req, res) => {
   try {
-    if (!isDBConnected()) {
-      return res.status(503).send({
-        message: 'Database is not connected'
-      });
-    }
-
-    const { lwd } = req.body;
+    const { lwd, reason } = req.body;
 
     if (!lwd) {
       return res.status(400).send({
@@ -122,37 +116,20 @@ const newUserResign = async (req, res) => {
       });
     }
 
-    const employeeId = req.user?._id || req.user?.id;
-
-    if (!employeeId) {
-      return res.status(401).send({
-        message: 'Employee authentication failed'
-      });
-    }
-
     const resignation =
       await allEmployeeLogics.addResignOfEmployee({
-        employeeId,
+        employeeId: req.user._id,
         lwd,
-        status: 'pending'
+        reason
       });
 
-    console.log(
-      'RESIGNATION SAVED:',
-      resignation
-    );
-
-    return res.status(200).send({
-      data: {
-        resignation
-      }
+    return res.status(201).send({
+      message: 'Resignation submitted successfully',
+      data: resignation
     });
 
   } catch (err) {
-    console.error(
-      'RESIGNATION ERROR:',
-      err
-    );
+    console.error('Resignation error:', err);
 
     return res.status(400).send({
       message: err.message
