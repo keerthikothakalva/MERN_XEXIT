@@ -62,7 +62,7 @@ const AdminDashboard = () => {
         return;
       }
 
-      await api.put('/admin/conclude_resignation', {
+      await api.put('/api/admin/conclude_resignation', {
         resignationId: id,
         approved: approved
       });

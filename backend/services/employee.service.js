@@ -7,17 +7,34 @@ class EmployeeLogics {
 
     // ---------- AUTH ----------
 
-    async ensureAdminExists() {
-        const admin = await Employee.findOne({ username: 'admin' });
-        if (!admin) {
-            const hashedPassword = await bcrypt.hash('admin', 10);
-            await Employee.create({
-                username: 'admin',
-                password: hashedPassword,
-                role: 'admin'
-            });
-        }
+async ensureAdminExists() {
+    const admin = await Employee.findOne({ username: 'admin' });
+
+    if (!admin) {
+        const hashedPassword = await bcrypt.hash('admin', 10);
+
+        await Employee.create({
+            username: 'admin',
+            password: hashedPassword,
+            role: 'admin'
+        });
+    } else if (admin.role !== 'admin') {
+        admin.role = 'admin';
+        await admin.save();
     }
+}
+
+async registerUser(payload) {
+    await this.ensureAdminExists();
+
+    const hashedPassword = await bcrypt.hash(payload.password, 10);
+
+    return Employee.create({
+        username: payload.username,
+        password: hashedPassword,
+        role: 'employee'
+    });
+}
 
     async registerUser(payload) {
         await this.ensureAdminExists();

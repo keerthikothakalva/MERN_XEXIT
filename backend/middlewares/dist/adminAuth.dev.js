@@ -4,10 +4,8 @@ var EmployeeLogics = require('../services/employee.service');
 
 var allEmployeeLogics = new EmployeeLogics();
 
-var memoryStore = require('../utils/memoryStore');
-
 var validateAdminAuth = function validateAdminAuth(req, res, next) {
-  var authHeader, token, decoded, user;
+  var authHeader, token, decoded;
   return regeneratorRuntime.async(function validateAdminAuth$(_context) {
     while (1) {
       switch (_context.prev = _context.next) {
@@ -38,14 +36,8 @@ var validateAdminAuth = function validateAdminAuth(req, res, next) {
           }));
 
         case 8:
-          _context.next = 10;
-          return regeneratorRuntime.awrap(allEmployeeLogics.findUserById(decoded.id));
-
-        case 10:
-          user = _context.sent;
-
-          if (!(!user || user.role !== 'HR')) {
-            _context.next = 13;
+          if (!(decoded.role !== 'admin')) {
+            _context.next = 10;
             break;
           }
 
@@ -53,25 +45,30 @@ var validateAdminAuth = function validateAdminAuth(req, res, next) {
             message: 'Admin access required'
           }));
 
-        case 13:
-          req.admin = user;
+        case 10:
+          req.admin = {
+            _id: decoded.id,
+            id: decoded.id,
+            role: decoded.role
+          };
           next();
-          _context.next = 20;
+          _context.next = 18;
           break;
 
-        case 17:
-          _context.prev = 17;
+        case 14:
+          _context.prev = 14;
           _context.t0 = _context["catch"](0);
+          console.error('validateAdminAuth error:', _context.t0.message);
           return _context.abrupt("return", res.status(401).json({
             message: 'Unauthorized'
           }));
 
-        case 20:
+        case 18:
         case "end":
           return _context.stop();
       }
     }
-  }, null, null, [[0, 17]]);
+  }, null, null, [[0, 14]]);
 };
 
 module.exports = {

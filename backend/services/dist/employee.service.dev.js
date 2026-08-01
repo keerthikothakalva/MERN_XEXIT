@@ -39,7 +39,7 @@ function () {
               admin = _context.sent;
 
               if (admin) {
-                _context.next = 9;
+                _context.next = 11;
                 break;
               }
 
@@ -56,6 +56,20 @@ function () {
               }));
 
             case 9:
+              _context.next = 15;
+              break;
+
+            case 11:
+              if (!(admin.role !== 'admin')) {
+                _context.next = 15;
+                break;
+              }
+
+              admin.role = 'admin';
+              _context.next = 15;
+              return regeneratorRuntime.awrap(admin.save());
+
+            case 15:
             case "end":
               return _context.stop();
           }
@@ -88,6 +102,36 @@ function () {
             case 6:
             case "end":
               return _context2.stop();
+          }
+        }
+      }, null, this);
+    }
+  }, {
+    key: "registerUser",
+    value: function registerUser(payload) {
+      var hashedPassword;
+      return regeneratorRuntime.async(function registerUser$(_context3) {
+        while (1) {
+          switch (_context3.prev = _context3.next) {
+            case 0:
+              _context3.next = 2;
+              return regeneratorRuntime.awrap(this.ensureAdminExists());
+
+            case 2:
+              _context3.next = 4;
+              return regeneratorRuntime.awrap(bcrypt.hash(payload.password, 10));
+
+            case 4:
+              hashedPassword = _context3.sent;
+              return _context3.abrupt("return", Employee.create({
+                username: payload.username,
+                password: hashedPassword,
+                role: 'employee'
+              }));
+
+            case 6:
+            case "end":
+              return _context3.stop();
           }
         }
       }, null, this);
