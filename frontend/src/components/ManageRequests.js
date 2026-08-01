@@ -52,31 +52,41 @@ function ManageRequests() {
 };
 
   // APPROVE / REJECT
-  const handleAction = async (id, status) => {
-    const exitDate = selectedLwd[id];
+  const handleAction = async (id, approved) => {
+  const lwd = selectedLwd[id];
 
-    if (!exitDate) {
-      setError('Please select exit date');
-      return;
-    }
+  if (!lwd) {
+    setError('Please select exit date');
+    return;
+  }
 
-    try {
-      await api.put('/admin/conclude_resignation', {
-        id,
-        status: status.toLowerCase(),
-        lwd: exitDate 
-      });
+  try {
+    await api.put('/api/admin/conclude_resignation', {
+      resignationId: id,
+      approved,
+      lwd
+    });
 
-      setMessage(`Request ${status} successfully`);
+    setMessage(
+      approved
+        ? 'Resignation approved successfully'
+        : 'Resignation rejected successfully'
+    );
 
-      // 
-      fetchData();
+    await fetchData();
 
-    } catch (err) {
-      console.error(err);
-      setError(err.response?.data?.message || 'Update failed');
-    }
-  };
+  } catch (err) {
+    console.error(
+      'UPDATE ERROR:',
+      err.response?.data || err
+    );
+
+    setError(
+      err.response?.data?.message ||
+      'Update failed'
+    );
+  }
+};
 
   
   const getStatusColor = (status) => {

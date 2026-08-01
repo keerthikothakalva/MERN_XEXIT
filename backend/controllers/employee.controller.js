@@ -108,22 +108,32 @@ const newUserResign = async (req, res) => {
   try {
     const { lwd } = req.body;
 
+    console.log('DB CONNECTED:', isDBConnected());
+    console.log('REQ USER:', req.user);
+    console.log('LWD:', lwd);
+
     const resignation = await allEmployeeLogics.addResignOfEmployee({
-      employeeId: req.user._id,
+      employeeId: req.user._id || req.user.id,
       lwd,
       status: 'pending'
     });
 
-  return res.status(200).send({
-  data: {
-    resignation: {
-      _id: resignation._id
-    }
-  }
-});
+    console.log('SAVED RESIGNATION:', resignation);
+
+    return res.status(200).send({
+      data: {
+        resignation: {
+          _id: resignation._id
+        }
+      }
+    });
 
   } catch (err) {
-    return res.status(400).send({ message: err.message });
+    console.error('RESIGN ERROR:', err);
+
+    return res.status(400).send({
+      message: err.message
+    });
   }
 };
 
@@ -138,7 +148,7 @@ const submitExitResponses = async (req, res) => {
       submittedAt: new Date()
     };
 
-    // ALWAYS STORE IN MEMORY (even if DB connected)
+    
     memoryStore.exitResponses.push(response);
 
     return res.status(200).send({
