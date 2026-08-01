@@ -33,6 +33,13 @@ const AdminDashboard = () => {
 
       const response = await api.get('/api/admin/resignations');
 
+    
+    console.log(
+      'RESIGNATIONS RESPONSE:',
+      response.data
+    );
+
+
       setResignationRequests(
         Array.isArray(response.data)
           ? response.data
@@ -54,27 +61,37 @@ const AdminDashboard = () => {
 
   // APPROVE / REJECT
   const handleDecision = async (id, approved) => {
-    try {
-      const lwd = selectedLwd[id];
+  try {
+    const lwd = selectedLwd[id];
 
-      if (!lwd) {
-        setError('Please select exit date');
-        return;
-      }
-
-      await api.put('/api/admin/conclude_resignation', {
-        resignationId: id,
-        approved: approved
-      });
-
-      setMessage('Updated successfully');
-      fetchResignationRequests();
-
-    } catch (err) {
-      console.error(err.response?.data);
-      setError(err.response?.data?.message || 'Update failed');
+    if (!lwd) {
+      setError('Please select exit date');
+      return;
     }
-  };
+
+    await api.put('/api/admin/conclude_resignation', {
+      resignationId: id,
+      approved,
+      lwd
+    });
+
+    setMessage(
+      approved
+        ? 'Resignation approved successfully'
+        : 'Resignation rejected successfully'
+    );
+
+    fetchResignationRequests();
+
+  } catch (err) {
+    console.error('UPDATE ERROR:', err.response?.data || err);
+
+    setError(
+      err.response?.data?.message ||
+      'Update failed'
+    );
+  }
+};
 
   const getStatusColor = (status) => {
     const s = status?.toLowerCase();

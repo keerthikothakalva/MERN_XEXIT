@@ -16,9 +16,9 @@ function App() {
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [role, setRole] = useState('');
-  const [loading, setLoading] = useState(true); // ✅ prevent early redirect
+  const [loading, setLoading] = useState(true);
 
-  // ✅ LOAD AUTH (FIXED)
+
   useEffect(() => {
     const token = localStorage.getItem('token');
     const storedRole = localStorage.getItem('role');
@@ -28,25 +28,30 @@ function App() {
       setRole(storedRole.toUpperCase());
     }
 
-    setLoading(false); // ✅ important
+    setLoading(false);
   }, []);
 
-  // ✅ LOGIN HANDLER (FIXED)
+
   const handleLogin = (userRole) => {
     const normalizedRole = userRole?.toUpperCase();
 
     setIsAuthenticated(true);
     setRole(normalizedRole);
 
-    // ✅ DIRECT NAVIGATION (NO TIMEOUT)
-    if (normalizedRole === 'HR') {
+    
+    if (normalizedRole === 'ADMIN') {
       navigate('/admin');
-    } else {
+    } else if (normalizedRole === 'EMPLOYEE') {
       navigate('/employee');
+    } else {
+      localStorage.clear();
+      setIsAuthenticated(false);
+      setRole('');
+      navigate('/login');
     }
   };
 
-  // ✅ LOGOUT
+  // Logout
   const handleLogout = () => {
     localStorage.clear();
     setIsAuthenticated(false);
@@ -54,7 +59,6 @@ function App() {
     navigate('/login');
   };
 
-  // ✅ PREVENT ROUTE FLICKER
   if (loading) return null;
 
   return (
@@ -63,82 +67,133 @@ function App() {
 
       <Routes>
 
-        {/* DEFAULT */}
-        <Route path="/" element={<Navigate to="/login" />} />
+        <Route
+          path="/"
+          element={
+            <Navigate
+              to={
+                isAuthenticated
+                  ? role === 'ADMIN'
+                    ? '/admin'
+                    : '/employee'
+                  : '/login'
+              }
+              replace
+            />
+          }
+        />
 
-        {/* AUTH */}
+        {/* Login */}
         <Route
           path="/login"
           element={
             !isAuthenticated ? (
               <LoginForm handleLogin={handleLogin} />
             ) : (
-              <Navigate to={role === 'HR' ? '/admin' : '/employee'} />
+              <Navigate
+                to={role === 'ADMIN' ? '/admin' : '/employee'}
+                replace
+              />
             )
           }
         />
 
-        <Route path="/register" element={<RegistrationForm />} />
+        {/* Register */}
+        <Route
+          path="/register"
+          element={<RegistrationForm />}
+        />
 
-        {/* EMPLOYEE */}
+        {/* Employee dashboard */}
         <Route
           path="/employee"
           element={
             isAuthenticated && role === 'EMPLOYEE' ? (
-              <Layout role={role} handleLogout={handleLogout}>
+              <Layout
+                role={role}
+                handleLogout={handleLogout}
+              >
                 <Dashboard />
               </Layout>
-            ) : <Navigate to="/login" />
+            ) : (
+              <Navigate to="/login" replace />
+            )
           }
         />
 
+        {/* Employee resignation */}
         <Route
           path="/employee/resign"
           element={
             isAuthenticated && role === 'EMPLOYEE' ? (
-              <Layout role={role} handleLogout={handleLogout}>
+              <Layout
+                role={role}
+                handleLogout={handleLogout}
+              >
                 <ResignationForm />
               </Layout>
-            ) : <Navigate to="/login" />
+            ) : (
+              <Navigate to="/login" replace />
+            )
           }
         />
 
+        {/* Employee exit interview */}
         <Route
           path="/employee/interview"
           element={
             isAuthenticated && role === 'EMPLOYEE' ? (
-              <Layout role={role} handleLogout={handleLogout}>
+              <Layout
+                role={role}
+                handleLogout={handleLogout}
+              >
                 <ExitInterviewForm />
               </Layout>
-            ) : <Navigate to="/login" />
+            ) : (
+              <Navigate to="/login" replace />
+            )
           }
         />
 
-        {/* HR / ADMIN */}
+        {/* Admin dashboard */}
         <Route
           path="/admin"
           element={
-            isAuthenticated && role === 'HR' ? (
-              <Layout role={role} handleLogout={handleLogout}>
+            isAuthenticated && role === 'ADMIN' ? (
+              <Layout
+                role={role}
+                handleLogout={handleLogout}
+              >
                 <AdminDashboard />
               </Layout>
-            ) : <Navigate to="/login" />
+            ) : (
+              <Navigate to="/login" replace />
+            )
           }
         />
 
+        {/* Admin manage requests */}
         <Route
           path="/admin/manage"
           element={
-            isAuthenticated && role === 'HR' ? (
-              <Layout role={role} handleLogout={handleLogout}>
+            isAuthenticated && role === 'ADMIN' ? (
+              <Layout
+                role={role}
+                handleLogout={handleLogout}
+              >
                 <ManageRequests />
               </Layout>
-            ) : <Navigate to="/login" />
+            ) : (
+              <Navigate to="/login" replace />
+            )
           }
         />
 
-        {/* FALLBACK */}
-        <Route path="*" element={<Navigate to="/login" />} />
+        
+        <Route
+          path="*"
+          element={<Navigate to="/" replace />}
+        />
 
       </Routes>
     </>
