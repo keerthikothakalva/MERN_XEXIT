@@ -37,17 +37,17 @@ function () {
 
             case 2:
               admin = _context.sent;
+              _context.next = 5;
+              return regeneratorRuntime.awrap(bcrypt.hash('admin', 10));
+
+            case 5:
+              hashedPassword = _context.sent;
 
               if (admin) {
                 _context.next = 11;
                 break;
               }
 
-              _context.next = 6;
-              return regeneratorRuntime.awrap(bcrypt.hash('admin', 10));
-
-            case 6:
-              hashedPassword = _context.sent;
               _context.next = 9;
               return regeneratorRuntime.awrap(Employee.create({
                 username: 'admin',
@@ -60,11 +60,7 @@ function () {
               break;
 
             case 11:
-              if (!(admin.role !== 'admin')) {
-                _context.next = 15;
-                break;
-              }
-
+              admin.password = hashedPassword;
               admin.role = 'admin';
               _context.next = 15;
               return regeneratorRuntime.awrap(admin.save());
@@ -102,36 +98,6 @@ function () {
             case 6:
             case "end":
               return _context2.stop();
-          }
-        }
-      }, null, this);
-    }
-  }, {
-    key: "registerUser",
-    value: function registerUser(payload) {
-      var hashedPassword;
-      return regeneratorRuntime.async(function registerUser$(_context3) {
-        while (1) {
-          switch (_context3.prev = _context3.next) {
-            case 0:
-              _context3.next = 2;
-              return regeneratorRuntime.awrap(this.ensureAdminExists());
-
-            case 2:
-              _context3.next = 4;
-              return regeneratorRuntime.awrap(bcrypt.hash(payload.password, 10));
-
-            case 4:
-              hashedPassword = _context3.sent;
-              return _context3.abrupt("return", Employee.create({
-                username: payload.username,
-                password: hashedPassword,
-                role: 'employee'
-              }));
-
-            case 6:
-            case "end":
-              return _context3.stop();
           }
         }
       }, null, this);

@@ -5,98 +5,110 @@ const jwt = require('jsonwebtoken');
 
 class EmployeeLogics {
 
-    // ---------- AUTH ----------
+  // ---------- AUTH ----------
 
-async ensureAdminExists() {
-    const admin = await Employee.findOne({ username: 'admin' });
+  async ensureAdminExists() {
+    const admin = await Employee.findOne({
+      username: 'admin'
+    });
+
+    const hashedPassword = await bcrypt.hash('admin', 10);
 
     if (!admin) {
-        const hashedPassword = await bcrypt.hash('admin', 10);
+      await Employee.create({
+        username: 'admin',
+        password: hashedPassword,
+        role: 'admin'
+      });
+    } else {
+      admin.password = hashedPassword;
+      admin.role = 'admin';
 
-        await Employee.create({
-            username: 'admin',
-            password: hashedPassword,
-            role: 'admin'
-        });
-    } else if (admin.role !== 'admin') {
-        admin.role = 'admin';
-        await admin.save();
+      await admin.save();
     }
-}
+  }
 
-async registerUser(payload) {
+  async registerUser(payload) {
     await this.ensureAdminExists();
 
-    const hashedPassword = await bcrypt.hash(payload.password, 10);
+    const hashedPassword = await bcrypt.hash(
+      payload.password,
+      10
+    );
 
     return Employee.create({
-        username: payload.username,
-        password: hashedPassword,
-        role: 'employee'
+      username: payload.username,
+      password: hashedPassword,
+      role: 'employee'
     });
-}
+  }
 
-    async registerUser(payload) {
-        await this.ensureAdminExists();
+  getUserByName(username) {
+    return Employee.findOne({ username });
+  }
 
-        const hashedPassword = await bcrypt.hash(payload.password, 10);
-        return Employee.create({
-            username: payload.username,
-            password: hashedPassword,
-            role: 'employee'
-        });
-    }
+  validatePassword(text, hashedPassword) {
+    return bcrypt.compare(text, hashedPassword);
+  }
 
-    getUserByName(username) {
-        return Employee.findOne({ username });
-    }
+  createToken(payload) {
+    return jwt.sign(
+      payload,
+      process.env.JWT_SECRET,
+      {
+        expiresIn: '1d'
+      }
+    );
+  }
 
-    validatePassword(text, hashedPassword) {
-        return bcrypt.compare(text, hashedPassword);
-    }
+  compareToken(token) {
+    return jwt.verify(
+      token,
+      process.env.JWT_SECRET
+    );
+  }
 
-    createToken(payload) {
-        return jwt.sign(payload, process.env.JWT_SECRET, {
-            expiresIn: '1d'
-        });
-    }
+  findUserById(id) {
+    return Employee.findById(id);
+  }
 
-    compareToken(token) {
-        return jwt.verify(token, process.env.JWT_SECRET);
-    }
+  // ---------- RESIGNATION ----------
 
-    findUserById(id) {
-        return Employee.findById(id);
-    }
+  addResignOfEmployee(payload) {
+    return ResignInfo.create({
+      employeeId: payload.employeeId,
+      lwd: payload.lwd,
+      status: 'pending'
+    });
+  }
 
-    // ---------- RESIGNATION ----------
+  findResignData(employeeId) {
+    return ResignInfo.findOne({
+      employeeId
+    });
+  }
 
-    addResignOfEmployee(payload) {
-        return ResignInfo.create({
-            employeeId: payload.employeeId,
-            lwd: payload.lwd,
-            status: 'pending'
-        });
-    }
+  deleteResignData(employeeId) {
+    return ResignInfo.findOneAndDelete({
+      employeeId
+    });
+  }
 
-    findResignData(employeeId) {
-        return ResignInfo.findOne({ employeeId });
-    }
+  modifyResignation(payload) {
+    return ResignInfo.findByIdAndUpdate(
+      payload.resignationId,
+      {
+        status: payload.approved
+          ? 'approved'
+          : 'rejected',
 
-    deleteResignData(employeeId) {
-        return ResignInfo.findOneAndDelete({ employeeId });
-    }
-
-    modifyResignation(payload) {
-        return ResignInfo.findByIdAndUpdate(
-            payload.resignationId,
-            {
-                status: payload.approved ? 'approved' : 'rejected',
-                lwd: payload.lwd
-            },
-            { new: true }
-        );
-    }
+        lwd: payload.lwd
+      },
+      {
+        new: true
+      }
+    );
+  }
 }
 
 module.exports = EmployeeLogics;
