@@ -37,9 +37,13 @@ localStorage.setItem('role', role?.toUpperCase());
 handleLogin(role);
 
   } catch (err) {
-    console.error(err);
-    setError('Login failed');
-  }
+  console.error('LOGIN ERROR:', err.response?.data || err);
+
+  setError(
+    err.response?.data?.message ||
+    'Login failed. Please check your username and password.'
+  );
+}
 };
 
   return (

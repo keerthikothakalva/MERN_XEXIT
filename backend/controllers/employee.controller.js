@@ -59,11 +59,15 @@ const loginUser = async (req, res) => {
     
     if (!isDBConnected()) {
       const user = memoryStore.users.find(
-        u => u.username === username && u.password === password
+        (u) =>
+          u.username === username &&
+          u.password === password
       );
 
       if (!user) {
-        return res.status(401).send({ message: 'Invalid credentials' });
+        return res.status(401).send({
+          message: 'Invalid credentials'
+        });
       }
 
       return res.status(200).send({
@@ -74,18 +78,26 @@ const loginUser = async (req, res) => {
     }
 
     
+    await allEmployeeLogics.ensureAdminExists();
+
     const user = await allEmployeeLogics.getUserByName(username);
+
     if (!user) {
-      return res.status(401).send({ message: 'Invalid credentials' });
+      return res.status(401).send({
+        message: 'Invalid credentials'
+      });
     }
 
-    const isValid = await allEmployeeLogics.validatePassword(
-      password,
-      user.password
-    );
+    const isValid =
+      await allEmployeeLogics.validatePassword(
+        password,
+        user.password
+      );
 
     if (!isValid) {
-      return res.status(401).send({ message: 'Invalid credentials' });
+      return res.status(401).send({
+        message: 'Invalid credentials'
+      });
     }
 
     const token = allEmployeeLogics.createToken({
@@ -98,8 +110,13 @@ const loginUser = async (req, res) => {
       token,
       role: user.role
     });
+
   } catch (err) {
-    return res.status(500).send({ message: err.message });
+    console.error('Login error:', err);
+
+    return res.status(500).send({
+      message: err.message
+    });
   }
 };
 
