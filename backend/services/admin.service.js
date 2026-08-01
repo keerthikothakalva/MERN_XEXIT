@@ -9,7 +9,7 @@ class AdminService {
   // =====================
   verifyToken(token) {
     try {
-      return jwt.verify(token, process.env.SECREATE_KEY);
+      return jwt.verify(token, process.env.JWT_SECRET);
     } catch (err) {
       return null;
     }
@@ -19,8 +19,21 @@ class AdminService {
   // GET ALL RESIGNATIONS
   // =====================
   async getAllResignations() {
-    return await ResignInfo.find().populate('employeeId');
-  }
+  const resignations = await ResignInfo.find()
+    .populate('employeeId');
+
+  console.log(
+    'ADMIN: Total resignations found:',
+    resignations.length
+  );
+
+  console.log(
+    'ADMIN: Resignations:',
+    resignations
+  );
+
+  return resignations;
+}
 
   // =====================
   // CONCLUDE RESIGNATION

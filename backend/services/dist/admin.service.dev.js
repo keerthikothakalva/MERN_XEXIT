@@ -26,7 +26,7 @@ function () {
     // =====================
     value: function verifyToken(token) {
       try {
-        return jwt.verify(token, process.env.SECREATE_KEY);
+        return jwt.verify(token, process.env.JWT_SECRET);
       } catch (err) {
         return null;
       }
@@ -37,6 +37,7 @@ function () {
   }, {
     key: "getAllResignations",
     value: function getAllResignations() {
+      var resignations;
       return regeneratorRuntime.async(function getAllResignations$(_context) {
         while (1) {
           switch (_context.prev = _context.next) {
@@ -45,9 +46,12 @@ function () {
               return regeneratorRuntime.awrap(ResignInfo.find().populate('employeeId'));
 
             case 2:
-              return _context.abrupt("return", _context.sent);
+              resignations = _context.sent;
+              console.log('ADMIN: Total resignations found:', resignations.length);
+              console.log('ADMIN: Resignations:', resignations);
+              return _context.abrupt("return", resignations);
 
-            case 3:
+            case 6:
             case "end":
               return _context.stop();
           }
