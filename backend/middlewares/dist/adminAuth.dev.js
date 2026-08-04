@@ -25,7 +25,7 @@ var validateAdminAuth = function validateAdminAuth(req, res, next) {
         case 4:
           token = authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : authHeader;
           decoded = allEmployeeLogics.compareToken(token);
-          console.log('DECODED ADMIN TOKEN:', decoded);
+          console.log('DECODED HR TOKEN:', decoded);
 
           if (!(!decoded || !decoded.id)) {
             _context.next = 9;
@@ -39,20 +39,20 @@ var validateAdminAuth = function validateAdminAuth(req, res, next) {
         case 9:
           role = String(decoded.role || '').toLowerCase();
 
-          if (!(role !== 'admin')) {
+          if (!(role !== 'hr')) {
             _context.next = 12;
             break;
           }
 
           return _context.abrupt("return", res.status(403).json({
-            message: 'Admin access required'
+            message: 'HR access denied'
           }));
 
         case 12:
           req.admin = {
             _id: decoded.id,
             id: decoded.id,
-            role: 'admin'
+            role: 'hr'
           };
           next();
           _context.next = 20;

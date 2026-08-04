@@ -5,43 +5,39 @@ const jwt = require('jsonwebtoken');
 
 class EmployeeLogics {
 
-  // ---------- AUTH ----------
+async ensureAdminExists() {
+  const admin = await Employee.findOne({
+    username: 'admin'
+  });
 
-  async ensureAdminExists() {
-    const admin = await Employee.findOne({
-      username: 'admin'
-    });
-
-    const hashedPassword = await bcrypt.hash('admin', 10);
-
-    if (!admin) {
-      await Employee.create({
-        username: 'admin',
-        password: hashedPassword,
-        role: 'admin'
-      });
-    } else {
-      admin.password = hashedPassword;
-      admin.role = 'admin';
-
-      await admin.save();
-    }
-  }
-
-  async registerUser(payload) {
-    await this.ensureAdminExists();
-
+  if (!admin) {
     const hashedPassword = await bcrypt.hash(
-      payload.password,
+      'admin',
       10
     );
 
-    return Employee.create({
-      username: payload.username,
+    await Employee.create({
+      username: 'admin',
+      email: 'admin@xexit.com',
       password: hashedPassword,
-      role: 'employee'
+      role: 'hr'
     });
   }
+}
+async registerUser(payload) {
+  const hashedPassword = await bcrypt.hash(
+    payload.password,
+    10
+  );
+
+  return Employee.create({
+    username: payload.username,
+    email: payload.email || null,
+    password: hashedPassword,
+    role: 'employee'
+  });
+}
+
 
   getUserByName(username) {
     return Employee.findOne({ username });
@@ -72,8 +68,6 @@ class EmployeeLogics {
     return Employee.findById(id);
   }
 
-  // ---------- RESIGNATION ----------
-
   addResignOfEmployee(payload) {
   return ResignInfo.create({
     employeeId: payload.employeeId,
@@ -96,20 +90,30 @@ class EmployeeLogics {
   }
 
   modifyResignation(payload) {
-    return ResignInfo.findByIdAndUpdate(
-      payload.resignationId,
-      {
-        status: payload.approved
+
+  return ResignInfo.findByIdAndUpdate(
+
+    payload.resignationId,
+
+    {
+      status:
+
+        payload.approved
           ? 'approved'
           : 'rejected',
 
-        lwd: payload.lwd
-      },
-      {
-        new: true
-      }
-    );
-  }
+      exitDate:
+        payload.exitDate
+    },
+
+    {
+      new: true,
+      runValidators: true
+    }
+
+  );
+
+}
 }
 
 module.exports = EmployeeLogics;

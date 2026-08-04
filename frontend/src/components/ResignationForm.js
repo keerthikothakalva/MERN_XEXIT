@@ -71,8 +71,7 @@ function ResignationForm({ setStatus }) {
                 justifyContent: 'center',
                 alignItems: 'center',
                 backgroundColor: '#f9fafb'
-            }}
-        >
+            }}>
             <Paper
                 elevation={4}
                 sx={{
@@ -80,8 +79,7 @@ function ResignationForm({ setStatus }) {
                     width: '100%',
                     maxWidth: 500,
                     borderRadius: 3
-                }}
-            >
+                }}>
                 <Typography variant="h5" fontWeight="bold" gutterBottom>
                     Submit Resignation
                 </Typography>
@@ -123,25 +121,22 @@ function ResignationForm({ setStatus }) {
                             py: 1.2,
                             fontWeight: 'bold',
                             backgroundColor: '#4F46E5'
-                        }}
-                    >
+                        }}>
                         {loading ? 'Submitting...' : 'Submit Request'}
                     </Button>
                 </form>
 
-                {/* SUCCESS */}
                 <Snackbar
                     open={!!successMessage}
                     autoHideDuration={4000}
                     onClose={() => setSuccessMessage('')}
-                    anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-                >
+                    anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
                     <Alert severity="success">
                         {successMessage}
                     </Alert>
                 </Snackbar>
 
-                {/* ERROR */}
+
                 <Snackbar
                     open={!!error}
                     autoHideDuration={4000}

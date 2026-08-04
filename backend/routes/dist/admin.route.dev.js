@@ -10,10 +10,12 @@ var _require = require('../middlewares/adminAuth'),
 
 var _require2 = require('../controllers/admin.controller'),
     getAllResignations = _require2.getAllResignations,
+    getRecentResignations = _require2.getRecentResignations,
     concludeResignation = _require2.concludeResignation,
     getExitResponses = _require2.getExitResponses;
 
 router.get('/resignations', validateAdminAuth, getAllResignations);
+router.get('/recent-resignations', validateAdminAuth, getRecentResignations);
 router.put('/conclude_resignation', validateAdminAuth, concludeResignation);
 router.get('/exit_responses', validateAdminAuth, getExitResponses);
 module.exports = router;

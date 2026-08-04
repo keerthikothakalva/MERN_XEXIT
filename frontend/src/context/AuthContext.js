@@ -7,7 +7,7 @@ export const AuthProvider = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
 
     const login = (username, password) => {
-        // Implement API call to validate user login
+        
         if (username === 'admin' && password === 'admin') {
             setUser({ username, role: 'HR' });
             setIsAuthenticated(true);

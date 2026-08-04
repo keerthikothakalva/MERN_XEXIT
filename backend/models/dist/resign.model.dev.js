@@ -12,6 +12,10 @@ var resignSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  exitDate: {
+    type: String,
+    "default": null
+  },
   reason: {
     type: String,
     "default": ''
@@ -20,6 +24,11 @@ var resignSchema = new mongoose.Schema({
     type: String,
     "enum": ['pending', 'approved', 'rejected'],
     "default": 'pending'
+  },
+  exitInterviewStatus: {
+    type: String,
+    "enum": ['not submitted', 'completed'],
+    "default": 'not submitted'
   }
 }, {
   timestamps: true

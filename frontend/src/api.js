@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'https://mern-xexit-lmhz.onrender.com',
+    baseURL: 'http://localhost:3001',
     headers: {
         'Content-Type': 'application/json'
     }

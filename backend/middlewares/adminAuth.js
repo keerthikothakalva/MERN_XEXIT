@@ -1,10 +1,18 @@
-const EmployeeLogics = require('../services/employee.service');
+const EmployeeLogics = require(
+  '../services/employee.service'
+);
 
-const allEmployeeLogics = new EmployeeLogics();
+const allEmployeeLogics =
+  new EmployeeLogics();
 
-const validateAdminAuth = async (req, res, next) => {
+const validateAdminAuth = async (
+  req,
+  res,
+  next
+) => {
   try {
-    const authHeader = req.headers.authorization;
+    const authHeader =
+      req.headers.authorization;
 
     if (!authHeader) {
       return res.status(401).json({
@@ -12,13 +20,20 @@ const validateAdminAuth = async (req, res, next) => {
       });
     }
 
-    const token = authHeader.startsWith('Bearer ')
-      ? authHeader.split(' ')[1]
-      : authHeader;
+    const token =
+      authHeader.startsWith('Bearer ')
+        ? authHeader.split(' ')[1]
+        : authHeader;
 
-    const decoded = allEmployeeLogics.compareToken(token);
+    const decoded =
+      allEmployeeLogics.compareToken(
+        token
+      );
 
-    console.log('DECODED ADMIN TOKEN:', decoded);
+    console.log(
+      'DECODED HR TOKEN:',
+      decoded
+    );
 
     if (!decoded || !decoded.id) {
       return res.status(401).json({
@@ -26,18 +41,21 @@ const validateAdminAuth = async (req, res, next) => {
       });
     }
 
-    const role = String(decoded.role || '').toLowerCase();
+    const role =
+      String(
+        decoded.role || ''
+      ).toLowerCase();
 
-    if (role !== 'admin') {
+    if (role !== 'hr') {
       return res.status(403).json({
-        message: 'Admin access required'
+        message: 'HR access denied'
       });
     }
 
     req.admin = {
       _id: decoded.id,
       id: decoded.id,
-      role: 'admin'
+      role: 'hr'
     };
 
     next();

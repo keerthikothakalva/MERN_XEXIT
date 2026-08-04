@@ -4,58 +4,132 @@ const ExitResponse = require('../models/exitResponse.model');
 
 class AdminService {
 
-  // =====================
-  // VERIFY ADMIN TOKEN
-  // =====================
   verifyToken(token) {
     try {
-      return jwt.verify(token, process.env.JWT_SECRET);
+      return jwt.verify(
+        token,
+        process.env.JWT_SECRET
+      );
     } catch (err) {
       return null;
     }
   }
 
-  // =====================
-  // GET ALL RESIGNATIONS
-  // =====================
+
   async getAllResignations() {
-  const resignations = await ResignInfo.find()
-    .populate('employeeId');
 
-  console.log(
-    'ADMIN: Total resignations found:',
-    resignations.length
-  );
+    const resignations =
+      await ResignInfo.find()
+        .populate('employeeId');
 
-  console.log(
-    'ADMIN: Resignations:',
-    resignations
-  );
+   
+    const updatedResignations =
+      await Promise.all(
 
-  return resignations;
-}
+        resignations.map(
+          async (resignation) => {
 
-  // =====================
-  // CONCLUDE RESIGNATION
-  // =====================
-  async concludeResignation(resignationId, approved, lwd) {
-    if (!resignationId) return null;
+            const exitResponse =
+              await ExitResponse.findOne({
+                employeeId:
+                  resignation.employeeId?._id
+              });
 
-    return await ResignInfo.findByIdAndUpdate(
-      resignationId,
-      {
-        status: approved ? 'approved' : 'rejected',
-        lwd
-      },
-      { new: true }
+            return {
+              ...resignation.toObject(),
+
+              exitInterviewStatus:
+                exitResponse
+                  ? 'completed'
+                  : 'not submitted'
+            };
+          }
+        )
+      );
+
+    console.log(
+      'ADMIN: Resignations with exit status:',
+      updatedResignations
     );
+
+    return updatedResignations;
   }
 
-  // =====================
-  // GET ALL EXIT RESPONSES
-  // =====================
+async getRecentResignations() {
+
+  const resignations =
+    await ResignInfo
+      .find()
+      .populate('employeeId')
+      .sort({
+        createdAt: -1
+      })
+      .limit(5);
+
+
+  const updatedResignations =
+    await Promise.all(
+
+      resignations.map(
+        async (resignation) => {
+
+          const exitResponse =
+            await ExitResponse.findOne({
+              employeeId:
+                resignation.employeeId?._id
+            });
+
+
+          return {
+            ...resignation.toObject(),
+
+            exitInterviewStatus:
+              exitResponse
+                ? 'completed'
+                : 'not submitted'
+          };
+
+        }
+      )
+    );
+
+
+  return updatedResignations;
+
+}
+  async concludeResignation(
+  resignationId,
+  approved,
+  exitDate
+) {
+
+  return ResignInfo
+    .findByIdAndUpdate(
+      resignationId,
+      {
+        status:approved
+            ? 'approved'
+            : 'rejected',
+
+        exitDate:approved
+            ? exitDate
+            : null
+      },
+      {
+        new:
+          true,
+        runValidators:
+          true
+      }
+
+    );
+
+}
   async getAllExitResponses() {
-    return await ExitResponse.find().populate('employeeId');
+
+    return await ExitResponse
+      .find()
+      .populate('employeeId');
   }
 }
 

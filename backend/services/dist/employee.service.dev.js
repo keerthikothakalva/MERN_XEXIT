@@ -23,7 +23,6 @@ function () {
 
   _createClass(EmployeeLogics, [{
     key: "ensureAdminExists",
-    // ---------- AUTH ----------
     value: function ensureAdminExists() {
       var admin, hashedPassword;
       return regeneratorRuntime.async(function ensureAdminExists$(_context) {
@@ -37,35 +36,26 @@ function () {
 
             case 2:
               admin = _context.sent;
-              _context.next = 5;
-              return regeneratorRuntime.awrap(bcrypt.hash('admin', 10));
-
-            case 5:
-              hashedPassword = _context.sent;
 
               if (admin) {
-                _context.next = 11;
+                _context.next = 9;
                 break;
               }
 
+              _context.next = 6;
+              return regeneratorRuntime.awrap(bcrypt.hash('admin', 10));
+
+            case 6:
+              hashedPassword = _context.sent;
               _context.next = 9;
               return regeneratorRuntime.awrap(Employee.create({
                 username: 'admin',
+                email: 'admin@xexit.com',
                 password: hashedPassword,
-                role: 'admin'
+                role: 'hr'
               }));
 
             case 9:
-              _context.next = 15;
-              break;
-
-            case 11:
-              admin.password = hashedPassword;
-              admin.role = 'admin';
-              _context.next = 15;
-              return regeneratorRuntime.awrap(admin.save());
-
-            case 15:
             case "end":
               return _context.stop();
           }
@@ -81,26 +71,23 @@ function () {
           switch (_context2.prev = _context2.next) {
             case 0:
               _context2.next = 2;
-              return regeneratorRuntime.awrap(this.ensureAdminExists());
-
-            case 2:
-              _context2.next = 4;
               return regeneratorRuntime.awrap(bcrypt.hash(payload.password, 10));
 
-            case 4:
+            case 2:
               hashedPassword = _context2.sent;
               return _context2.abrupt("return", Employee.create({
                 username: payload.username,
+                email: payload.email || null,
                 password: hashedPassword,
                 role: 'employee'
               }));
 
-            case 6:
+            case 4:
             case "end":
               return _context2.stop();
           }
         }
-      }, null, this);
+      });
     }
   }, {
     key: "getUserByName",
@@ -130,8 +117,7 @@ function () {
     key: "findUserById",
     value: function findUserById(id) {
       return Employee.findById(id);
-    } // ---------- RESIGNATION ----------
-
+    }
   }, {
     key: "addResignOfEmployee",
     value: function addResignOfEmployee(payload) {
@@ -161,9 +147,10 @@ function () {
     value: function modifyResignation(payload) {
       return ResignInfo.findByIdAndUpdate(payload.resignationId, {
         status: payload.approved ? 'approved' : 'rejected',
-        lwd: payload.lwd
+        exitDate: payload.exitDate
       }, {
-        "new": true
+        "new": true,
+        runValidators: true
       });
     }
   }]);

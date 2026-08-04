@@ -8,13 +8,19 @@ var employeeSchema = new mongoose.Schema({
     required: true,
     unique: true
   },
+  email: {
+    type: String,
+    lowercase: true,
+    trim: true,
+    "default": null
+  },
   password: {
     type: String,
     required: true
   },
   role: {
     type: String,
-    "enum": ['employee', 'admin'],
+    "enum": ['employee', 'hr'],
     "default": 'employee'
   }
 }, {

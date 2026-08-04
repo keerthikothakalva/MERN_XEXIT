@@ -12,6 +12,10 @@ const resignSchema = new mongoose.Schema(
       type: String,
       required: true
     },
+    exitDate: {
+      type: String,
+      default: null
+    },
 
     reason: {
       type: String,
@@ -20,11 +24,29 @@ const resignSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ['pending', 'approved', 'rejected'],
+      enum: [
+        'pending',
+        'approved',
+        'rejected'
+      ],
       default: 'pending'
+    },
+  
+    exitInterviewStatus: {
+      type: String,
+      enum: [
+        'not submitted',
+        'completed'
+      ],
+      default: 'not submitted'
     }
   },
-  { timestamps: true }
+  {
+    timestamps: true
+  }
 );
 
-module.exports = mongoose.model('ResignInfo', resignSchema);
+module.exports = mongoose.model(
+  'ResignInfo',
+  resignSchema
+);

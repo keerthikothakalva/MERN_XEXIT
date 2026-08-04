@@ -9,13 +9,11 @@ const {
   deleteResign
 } = require('../controllers/user.controller');
 
-// Employee resign
 router.post('/resign', validateEmployeeAuth, newUserResign);
 
-// 🔥 THIS WAS FAILING
 router.post('/responses', validateEmployeeAuth, submitExitResponses);
 
-// Delete resignation
+
 router.delete('/resign', validateEmployeeAuth, deleteResign);
 
 module.exports = router;

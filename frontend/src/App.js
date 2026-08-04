@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
-import { CssBaseline } from '@mui/material';
+
+import {
+  Routes,
+  Route,
+  useNavigate,
+  Navigate
+} from 'react-router-dom';
+
+import {
+  CssBaseline
+} from '@mui/material';
 
 import LoginForm from './components/LoginForm';
 import RegistrationForm from './components/RegistrationForm';
@@ -12,38 +21,56 @@ import ManageRequests from './components/ManageRequests';
 import Layout from './components/Layout';
 
 function App() {
+
   const navigate = useNavigate();
 
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [role, setRole] = useState('');
-  const [loading, setLoading] = useState(true);
+  const [
+    isAuthenticated,
+    setIsAuthenticated
+  ] = useState(false);
 
+  const [
+    role,
+    setRole
+  ] = useState('');
+
+  const [
+    loading,
+    setLoading
+  ] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const storedRole = localStorage.getItem('role');
+
+    const token =localStorage.getItem('token');
+
+    const storedRole =localStorage.getItem('role');
+
 
     if (token && storedRole) {
       setIsAuthenticated(true);
-      setRole(storedRole.toUpperCase());
+      setRole(
+        storedRole.toUpperCase()
+      );
     }
-
     setLoading(false);
+
   }, []);
 
+  const handleLogin = (userRole ) => {
 
-  const handleLogin = (userRole) => {
-    const normalizedRole = userRole?.toUpperCase();
-
+    const normalizedRole =
+      userRole?.toUpperCase();
     setIsAuthenticated(true);
-    setRole(normalizedRole);
-
-    
-    if (normalizedRole === 'ADMIN') {
+    setRole(
+      normalizedRole
+    );
+    if (normalizedRole === 'HR') {
       navigate('/admin');
-    } else if (normalizedRole === 'EMPLOYEE') {
+    }
+    else if (normalizedRole === 'EMPLOYEE') {
       navigate('/employee');
-    } else {
+    }
+    else {
       localStorage.clear();
       setIsAuthenticated(false);
       setRole('');
@@ -51,153 +78,323 @@ function App() {
     }
   };
 
-  // Logout
   const handleLogout = () => {
+
     localStorage.clear();
+
     setIsAuthenticated(false);
+
     setRole('');
+
     navigate('/login');
+
   };
 
-  if (loading) return null;
+
+  if (loading) {
+
+    return null;
+
+  }
+
 
   return (
+
     <>
+
       <CssBaseline />
 
-      <Routes>
 
+      <Routes>
         <Route
           path="/"
           element={
             <Navigate
               to={
                 isAuthenticated
-                  ? role === 'ADMIN'
+                  ? role === 'HR'
                     ? '/admin'
                     : '/employee'
                   : '/login'
               }
-              replace
-            />
-          }
-        />
+              replace/>
 
-        {/* Login */}
+          }/>
+
         <Route
           path="/login"
           element={
-            !isAuthenticated ? (
-              <LoginForm handleLogin={handleLogin} />
-            ) : (
-              <Navigate
-                to={role === 'ADMIN' ? '/admin' : '/employee'}
-                replace
-              />
-            )
+            !isAuthenticated
+              ? (
+                <LoginForm
+                  handleLogin={
+                    handleLogin
+                  }
+                />
+              )
+
+              : (
+
+                <Navigate
+                  to={
+                    role === 'HR'
+                      ? '/admin'
+                      : '/employee'
+
+                  }
+                  replace
+                />
+              )
           }
         />
-
-        {/* Register */}
         <Route
+
           path="/register"
-          element={<RegistrationForm />}
-        />
 
-        {/* Employee dashboard */}
+          element={
+
+            <RegistrationForm />
+
+          }
+
+        />
         <Route
+
           path="/employee"
+
           element={
-            isAuthenticated && role === 'EMPLOYEE' ? (
-              <Layout
-                role={role}
-                handleLogout={handleLogout}
-              >
-                <Dashboard />
-              </Layout>
-            ) : (
-              <Navigate to="/login" replace />
-            )
+
+            isAuthenticated &&
+
+            role === 'EMPLOYEE'
+
+              ? (
+
+                <Layout
+
+                  role={role}
+
+                  handleLogout={
+                    handleLogout
+                  }
+
+                >
+
+                  <Dashboard />
+
+                </Layout>
+
+              )
+
+              : (
+
+                <Navigate
+
+                  to="/login"
+
+                  replace
+
+                />
+
+              )
+
           }
+
         />
 
-        {/* Employee resignation */}
         <Route
+
           path="/employee/resign"
-          element={
-            isAuthenticated && role === 'EMPLOYEE' ? (
-              <Layout
-                role={role}
-                handleLogout={handleLogout}
-              >
-                <ResignationForm />
-              </Layout>
-            ) : (
-              <Navigate to="/login" replace />
-            )
-          }
-        />
 
-        {/* Employee exit interview */}
+          element={
+
+            isAuthenticated &&
+
+            role === 'EMPLOYEE'
+
+              ? (
+
+                <Layout
+
+                  role={role}
+
+                  handleLogout={
+                    handleLogout
+                  }
+
+                >
+
+                  <ResignationForm />
+
+                </Layout>
+
+              )
+
+              : (
+
+                <Navigate
+
+                  to="/login"
+
+                  replace
+
+                />
+
+              )
+
+          }/>
+
         <Route
+
           path="/employee/interview"
+
           element={
-            isAuthenticated && role === 'EMPLOYEE' ? (
-              <Layout
-                role={role}
-                handleLogout={handleLogout}
-              >
-                <ExitInterviewForm />
-              </Layout>
-            ) : (
-              <Navigate to="/login" replace />
-            )
+
+            isAuthenticated &&
+
+            role === 'EMPLOYEE'
+
+              ? (
+
+                <Layout
+
+                  role={role}
+
+                  handleLogout={
+                    handleLogout
+                  }>
+                  <ExitInterviewForm />
+                </Layout>
+              )
+
+              : (
+
+                <Navigate
+
+                  to="/login"
+
+                  replace
+
+                />
+
+              )
+
           }
+
         />
 
-        {/* Admin dashboard */}
         <Route
+
           path="/admin"
-          element={
-            isAuthenticated && role === 'ADMIN' ? (
-              <Layout
-                role={role}
-                handleLogout={handleLogout}
-              >
-                <AdminDashboard />
-              </Layout>
-            ) : (
-              <Navigate to="/login" replace />
-            )
-          }
-        />
 
-        {/* Admin manage requests */}
+          element={
+
+            isAuthenticated &&
+
+            role === 'HR'
+
+              ? (
+
+                <Layout
+
+                  role={role}
+
+                  handleLogout={
+                    handleLogout
+                  }
+
+                  hideSidebar={
+                    true
+                  }
+
+                >
+
+                  <AdminDashboard />
+
+                </Layout>
+
+              )
+
+              : (
+
+                <Navigate
+
+                  to="/login"
+
+                  replace
+
+                />
+
+              )
+
+          }
+
+        />
         <Route
+
           path="/admin/manage"
+
           element={
-            isAuthenticated && role === 'ADMIN' ? (
-              <Layout
-                role={role}
-                handleLogout={handleLogout}
-              >
-                <ManageRequests />
-              </Layout>
-            ) : (
-              <Navigate to="/login" replace />
-            )
+
+            isAuthenticated &&
+
+            role === 'HR'
+
+              ? (
+
+                <Layout
+
+                  role={role}
+
+                  handleLogout={
+                    handleLogout
+                  }
+
+                  hideSidebar={
+                    true
+                  }
+
+                >
+
+                  <ManageRequests />
+
+                </Layout>
+
+              )
+
+              : (
+
+                <Navigate
+
+                  to="/login"
+
+                  replace
+
+                />
+
+              )
+
           }
-        />
 
-        
+        />
         <Route
-          path="*"
-          element={<Navigate to="/" replace />}
-        />
 
+          path="*"
+
+          element={
+
+            <Navigate
+
+              to="/"
+
+              replace
+
+            />
+          }/>
       </Routes>
-    </>
-  );
+
+    </>);
+
 }
 
 export default App;
