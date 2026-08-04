@@ -172,14 +172,23 @@ const concludeResignation = async (
     try {
 
       const employee =
-        await resignation
-          .populate('employeeId');
+  await resignation
+    .populate('employeeId');
 
+console.log(
+  'POPULATED EMPLOYEE:',
+  employee.employeeId
+);
 
-      if (
-        employee.employeeId &&
-        employee.employeeId.email
-      ) {
+console.log(
+  'EMPLOYEE EMAIL:',
+  employee.employeeId?.email
+);
+
+if (
+  employee.employeeId &&
+  employee.employeeId.email
+) {
 
         await sendResignationEmail({
 
