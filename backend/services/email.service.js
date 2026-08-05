@@ -1,48 +1,25 @@
-const nodemailer = require('nodemailer');
-
-const transporter = nodemailer.createTransport({
-  host: 'smtp-relay.brevo.com',
-  port: 587,
-  secure: false,
-  requireTLS: true,
-
-  auth: {
-    user: process.env.BREVO_SMTP_LOGIN,
-    pass: process.env.BREVO_SMTP_KEY
-  },
-
-  connectionTimeout: 60000,
-  greetingTimeout: 30000,
-  socketTimeout: 60000
-});
-
 const sendResignationEmail = async ({
   employeeEmail,
   employeeName,
   approved,
   exitDate
 }) => {
-  if (!employeeEmail) {
-    throw new Error(
-      'Employee email is missing'
-    );
-  }
 
-  if (!process.env.BREVO_SMTP_LOGIN) {
+  if (!process.env.BREVO_API_KEY) {
     throw new Error(
-      'BREVO_SMTP_LOGIN is missing'
-    );
-  }
-
-  if (!process.env.BREVO_SMTP_KEY) {
-    throw new Error(
-      'BREVO_SMTP_KEY is missing'
+      'BREVO_API_KEY is missing in Render'
     );
   }
 
   if (!process.env.EMAIL_USER) {
     throw new Error(
-      'EMAIL_USER is missing'
+      'EMAIL_USER is missing in Render'
+    );
+  }
+
+  if (!employeeEmail) {
+    throw new Error(
+      'Employee email is missing'
     );
   }
 
@@ -50,7 +27,7 @@ const sendResignationEmail = async ({
     ? 'XExit: Your resignation has been approved'
     : 'XExit: Your resignation has been rejected';
 
-  const message = approved
+  const textContent = approved
     ? `Hello ${employeeName || 'Employee'},
 
 Your resignation request has been approved.
@@ -70,59 +47,94 @@ Please contact HR for more information.
 Regards,
 XExit HR Team`;
 
-  try {
-    console.log(
-      'EMAIL SENDING STARTED'
-    );
+  const response = await fetch(
+    'https://api.brevo.com/v3/smtp/email',
+    {
+      method: 'POST',
 
-    console.log(
-      'RECIPIENT:',
-      employeeEmail
-    );
+      headers: {
+        accept: 'application/json',
 
-    const info =
-      await transporter.sendMail({
-        from: {
-          name: 'XExit HR Team',
-          address:
-            process.env.EMAIL_USER
+        'content-type':
+          'application/json',
+
+        'api-key':
+          process.env.BREVO_API_KEY
+      },
+
+      body: JSON.stringify({
+        sender: {
+          email:
+            process.env.EMAIL_USER,
+
+          name:
+            'XExit HR Team'
         },
 
-        to: employeeEmail,
+        to: [
+          {
+            email:
+              employeeEmail,
+
+            name:
+              employeeName ||
+              'Employee'
+          }
+        ],
 
         subject,
 
-        text: message
-      });
+        textContent
+      })
+    }
+  );
 
-    console.log(
-      'EMAIL SENT SUCCESSFULLY:',
-      {
-        messageId:
-          info.messageId,
+  const responseText =
+    await response.text();
 
-        accepted:
-          info.accepted,
+  let result;
 
-        rejected:
-          info.rejected,
-
-        response:
-          info.response
-      }
-    );
-
-    return info;
-
-  } catch (error) {
-
-    console.error(
-      'EMAIL SENDING FAILED:',
-      error.message
-    );
-
-    throw error;
+  try {
+    result =
+      responseText
+        ? JSON.parse(responseText)
+        : {};
+  } catch {
+    result = {
+      rawResponse:
+        responseText
+    };
   }
+
+  console.log(
+    'BREVO STATUS:',
+    response.status
+  );
+
+  console.log(
+    'BREVO RESPONSE:',
+    result
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      result.message ||
+      `Brevo API failed with status ${response.status}`
+    );
+  }
+
+  if (!result.messageId) {
+    throw new Error(
+      'Brevo accepted the request but returned no messageId'
+    );
+  }
+
+  console.log(
+    'EMAIL ACCEPTED BY BREVO:',
+    result.messageId
+  );
+
+  return result;
 };
 
 module.exports = {
