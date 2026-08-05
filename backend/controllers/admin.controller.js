@@ -141,27 +141,69 @@ const concludeResignation = async (req, res) => {
       });
     }
 
-    const populatedResignation =
-      await resignation.populate(
-        'employeeId'
-      );
-
     const employee =
-      populatedResignation.employeeId;
+  populatedResignation.employeeId;
 
-    // Send the success response immediately
-    res.status(200).json({
-      message:
+if (!employee?.email) {
+
+  console.error(
+    'EMAIL NOT SENT: Employee email is missing'
+  );
+
+} else {
+
+  try {
+
+    console.log(
+      'CALLING sendResignationEmail'
+    );
+
+    console.log(
+      'EMAIL RECIPIENT:',
+      employee.email
+    );
+
+    await sendResignationEmail({
+      employeeEmail:
+        employee.email,
+
+      employeeName:
+        employee.username ||
+        'Employee',
+
+      approved,
+
+      exitDate:
         approved
-          ? 'Resignation approved successfully'
-          : 'Resignation rejected successfully',
-
-      data:
-        populatedResignation
+          ? exitDate
+          : null
     });
 
-    // Email runs separately and does not
-    // block the success message
+    console.log(
+      'EMAIL FLOW COMPLETED'
+    );
+
+  } catch (emailError) {
+
+    console.error(
+      'EMAIL ERROR:',
+      emailError.message
+    );
+
+  }
+
+}
+
+return res.status(200).json({
+  message:
+    approved
+      ? 'Resignation approved successfully'
+      : 'Resignation rejected successfully',
+
+  data:
+    populatedResignation
+});
+
     if (!employee?.email) {
       console.error(
         'EMAIL NOT SENT: Employee email is missing'
