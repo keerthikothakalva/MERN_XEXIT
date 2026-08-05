@@ -47,6 +47,16 @@ Please contact HR for more information.
 Regards,
 XExit HR Team`;
 
+console.log(
+  'BREVO_API_KEY LOADED:',
+  Boolean(process.env.BREVO_API_KEY)
+);
+
+console.log(
+  'SENDING TO:',
+  employeeEmail
+);
+
   const response = await fetch(
     'https://api.brevo.com/v3/smtp/email',
     {

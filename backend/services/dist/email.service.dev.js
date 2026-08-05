@@ -34,7 +34,9 @@ var sendResignationEmail = function sendResignationEmail(_ref) {
         case 7:
           subject = approved ? 'XExit: Your resignation has been approved' : 'XExit: Your resignation has been rejected';
           textContent = approved ? "Hello ".concat(employeeName || 'Employee', ",\n\nYour resignation request has been approved.\n\nFinal exit date: ").concat(exitDate || 'Not specified', "\n\nThank you for your contribution.\n\nRegards,\nXExit HR Team") : "Hello ".concat(employeeName || 'Employee', ",\n\nYour resignation request has been rejected.\n\nPlease contact HR for more information.\n\nRegards,\nXExit HR Team");
-          _context.next = 11;
+          console.log('BREVO_API_KEY LOADED:', Boolean(process.env.BREVO_API_KEY));
+          console.log('SENDING TO:', employeeEmail);
+          _context.next = 13;
           return regeneratorRuntime.awrap(fetch('https://api.brevo.com/v3/smtp/email', {
             method: 'POST',
             headers: {
@@ -56,12 +58,12 @@ var sendResignationEmail = function sendResignationEmail(_ref) {
             })
           }));
 
-        case 11:
+        case 13:
           response = _context.sent;
-          _context.next = 14;
+          _context.next = 16;
           return regeneratorRuntime.awrap(response.text());
 
-        case 14:
+        case 16:
           responseText = _context.sent;
 
           try {
@@ -76,25 +78,25 @@ var sendResignationEmail = function sendResignationEmail(_ref) {
           console.log('BREVO RESPONSE:', result);
 
           if (response.ok) {
-            _context.next = 20;
+            _context.next = 22;
             break;
           }
 
           throw new Error(result.message || "Brevo API failed with status ".concat(response.status));
 
-        case 20:
+        case 22:
           if (result.messageId) {
-            _context.next = 22;
+            _context.next = 24;
             break;
           }
 
           throw new Error('Brevo accepted the request but returned no messageId');
 
-        case 22:
+        case 24:
           console.log('EMAIL ACCEPTED BY BREVO:', result.messageId);
           return _context.abrupt("return", result);
 
-        case 24:
+        case 26:
         case "end":
           return _context.stop();
       }
