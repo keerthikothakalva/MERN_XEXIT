@@ -115,13 +115,15 @@ const concludeResignation = async (req, res) => {
 
     if (!resignationId) {
       return res.status(400).json({
-        message: 'Resignation ID is required'
+        message:
+          'Resignation ID is required'
       });
     }
 
     if (typeof approved !== 'boolean') {
       return res.status(400).json({
-        message: 'Approval status is required'
+        message:
+          'Approval status is required'
       });
     }
 
@@ -134,73 +136,79 @@ const concludeResignation = async (req, res) => {
 
     if (!resignation) {
       return res.status(404).json({
-        message: 'Resignation request not found'
+        message:
+          'Resignation request not found'
       });
     }
 
     const populatedResignation =
-      await resignation.populate('employeeId');
+      await resignation.populate(
+        'employeeId'
+      );
 
     const employee =
       populatedResignation.employeeId;
 
-    console.log(
-      'EMAIL FLOW STARTED'
-    );
-
-    console.log(
-      'EMPLOYEE EMAIL:',
-      employee?.email
-    );
-
-    if (!employee?.email) {
-      return res.status(400).json({
-        message:
-          'Employee email is missing'
-      });
-    }
-
-    await sendResignationEmail({
-      employeeEmail:
-        employee.email,
-
-      employeeName:
-        employee.username ||
-        'Employee',
-
-      approved,
-
-      exitDate:
-        approved
-          ? exitDate
-          : null
-    });
-
-    console.log(
-      'EMAIL FLOW COMPLETED'
-    );
-
-    return res.status(200).json({
+    // Send the success response immediately
+    res.status(200).json({
       message:
         approved
-          ? 'Resignation approved and email sent successfully'
-          : 'Resignation rejected and email sent successfully',
+          ? 'Resignation approved successfully'
+          : 'Resignation rejected successfully',
 
       data:
         populatedResignation
     });
 
+    // Email runs separately and does not
+    // block the success message
+    if (!employee?.email) {
+      console.error(
+        'EMAIL NOT SENT: Employee email is missing'
+      );
+
+      return;
+    }
+
+    try {
+      await sendResignationEmail({
+        employeeEmail:
+          employee.email,
+
+        employeeName:
+          employee.username ||
+          'Employee',
+
+        approved,
+
+        exitDate:
+          approved
+            ? exitDate
+            : null
+      });
+
+      console.log(
+        'EMAIL FLOW COMPLETED'
+      );
+
+    } catch (emailError) {
+
+      console.error(
+        'EMAIL ERROR:',
+        emailError.message
+      );
+    }
+
   } catch (error) {
 
     console.error(
-      'CONCLUDE/EMAIL ERROR:',
+      'CONCLUDE RESIGNATION ERROR:',
       error
     );
 
     return res.status(500).json({
       message:
-        error.message ||
-        'Unable to update resignation or send email'
+        'Unable to update resignation'
     });
   }
 };
