@@ -8,19 +8,33 @@ var sendResignationEmail = function sendResignationEmail(_ref) {
         case 0:
           employeeEmail = _ref.employeeEmail, employeeName = _ref.employeeName, approved = _ref.approved, exitDate = _ref.exitDate;
 
-          if (employeeEmail) {
-            _context.next = 4;
+          if (process.env.BREVO_API_KEY) {
+            _context.next = 3;
             break;
           }
 
-          console.log('EMAIL NOT SENT: Employee email is missing');
-          return _context.abrupt("return");
+          throw new Error('BREVO_API_KEY is missing');
 
-        case 4:
+        case 3:
+          if (process.env.EMAIL_USER) {
+            _context.next = 5;
+            break;
+          }
+
+          throw new Error('EMAIL_USER is missing');
+
+        case 5:
+          if (employeeEmail) {
+            _context.next = 7;
+            break;
+          }
+
+          throw new Error('Employee email is missing');
+
+        case 7:
           subject = approved ? 'XExit: Your resignation has been approved' : 'XExit: Your resignation has been rejected';
-          message = approved ? "\nHello ".concat(employeeName, ",\n\nYour resignation request has been approved.\n\nFinal exit date: ").concat(exitDate, "\n\nThank you for your contribution.\n\nRegards,\nXExit HR Team\n") : "\nHello ".concat(employeeName, ",\n\nYour resignation request has been rejected.\n\nPlease contact HR for more information.\n\nRegards,\nXExit HR Team\n");
-          _context.prev = 6;
-          _context.next = 9;
+          message = approved ? "Hello ".concat(employeeName || 'Employee', ",\n\nYour resignation request has been approved.\n\nFinal exit date: ").concat(exitDate || 'Not specified', "\n\nThank you for your contribution.\n\nRegards,\nXExit HR Team") : "Hello ".concat(employeeName || 'Employee', ",\n\nYour resignation request has been rejected.\n\nPlease contact HR for more information.\n\nRegards,\nXExit HR Team");
+          _context.next = 11;
           return regeneratorRuntime.awrap(fetch('https://api.brevo.com/v3/smtp/email', {
             method: 'POST',
             headers: {
@@ -29,50 +43,45 @@ var sendResignationEmail = function sendResignationEmail(_ref) {
             },
             body: JSON.stringify({
               sender: {
-                email: process.env.EMAIL_USER,
-                name: 'XExit HR Team'
+                name: 'XExit HR Team',
+                email: process.env.EMAIL_USER
               },
               to: [{
                 email: employeeEmail,
-                name: employeeName
+                name: employeeName || 'Employee'
               }],
               subject: subject,
               textContent: message
             })
           }));
 
-        case 9:
+        case 11:
           response = _context.sent;
-          _context.next = 12;
+          _context.next = 14;
           return regeneratorRuntime.awrap(response.json());
 
-        case 12:
+        case 14:
           result = _context.sent;
+          console.log('BREVO STATUS:', response.status);
+          console.log('BREVO RESPONSE:', result);
 
           if (response.ok) {
-            _context.next = 15;
+            _context.next = 19;
             break;
           }
 
           throw new Error(result.message || 'Brevo email request failed');
 
-        case 15:
-          console.log('EMAIL RESULT:', result);
-          _context.next = 22;
-          break;
+        case 19:
+          console.log('EMAIL SENT SUCCESSFULLY:', result.messageId);
+          return _context.abrupt("return", result);
 
-        case 18:
-          _context.prev = 18;
-          _context.t0 = _context["catch"](6);
-          console.error('EMAIL SENDING FAILED:', _context.t0.message);
-          throw _context.t0;
-
-        case 22:
+        case 21:
         case "end":
           return _context.stop();
       }
     }
-  }, null, null, [[6, 18]]);
+  });
 };
 
 module.exports = {

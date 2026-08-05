@@ -4,11 +4,22 @@ const sendResignationEmail = async ({
   approved,
   exitDate
 }) => {
-  if (!employeeEmail) {
-    console.log(
-      'EMAIL NOT SENT: Employee email is missing'
+  if (!process.env.BREVO_API_KEY) {
+    throw new Error(
+      'BREVO_API_KEY is missing'
     );
-    return;
+  }
+
+  if (!process.env.EMAIL_USER) {
+    throw new Error(
+      'EMAIL_USER is missing'
+    );
+  }
+
+  if (!employeeEmail) {
+    throw new Error(
+      'Employee email is missing'
+    );
   }
 
   const subject = approved
@@ -16,92 +27,91 @@ const sendResignationEmail = async ({
     : 'XExit: Your resignation has been rejected';
 
   const message = approved
-    ? `
-Hello ${employeeName},
+    ? `Hello ${employeeName || 'Employee'},
 
 Your resignation request has been approved.
 
-Final exit date: ${exitDate}
+Final exit date: ${exitDate || 'Not specified'}
 
 Thank you for your contribution.
 
 Regards,
-XExit HR Team
-`
-    : `
-Hello ${employeeName},
+XExit HR Team`
+    : `Hello ${employeeName || 'Employee'},
 
 Your resignation request has been rejected.
 
 Please contact HR for more information.
 
 Regards,
-XExit HR Team
-`;
+XExit HR Team`;
 
-  try {
-    const response = await fetch(
-      'https://api.brevo.com/v3/smtp/email',
-      {
-        method: 'POST',
+  const response = await fetch(
+    'https://api.brevo.com/v3/smtp/email',
+    {
+      method: 'POST',
 
-        headers: {
-          'Content-Type': 'application/json',
+      headers: {
+        'Content-Type':
+          'application/json',
 
-          'api-key':
-            process.env.BREVO_API_KEY
+        'api-key':
+          process.env.BREVO_API_KEY
+      },
+
+      body: JSON.stringify({
+        sender: {
+          name:
+            'XExit HR Team',
+
+          email:
+            process.env.EMAIL_USER
         },
 
-        body: JSON.stringify({
-          sender: {
+        to: [
+          {
             email:
-              process.env.EMAIL_USER,
+              employeeEmail,
 
             name:
-              'XExit HR Team'
-          },
+              employeeName || 'Employee'
+          }
+        ],
 
-          to: [
-            {
-              email:
-                employeeEmail,
+        subject,
 
-              name:
-                employeeName
-            }
-          ],
-
-          subject,
-
-          textContent:
-            message
-        })
-      }
-    );
-
-    const result =
-      await response.json();
-
-    if (!response.ok) {
-      throw new Error(
-        result.message ||
-        'Brevo email request failed'
-      );
+        textContent:
+          message
+      })
     }
+  );
 
-    console.log(
-      'EMAIL RESULT:',
-      result
+  const result =
+    await response.json();
+
+  console.log(
+    'BREVO STATUS:',
+    response.status
+  );
+
+  console.log(
+    'BREVO RESPONSE:',
+    result
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      result.message ||
+      'Brevo email request failed'
     );
-
-  } catch (error) {
-    console.error(
-      'EMAIL SENDING FAILED:',
-      error.message
-    );
-
-    throw error;
   }
+
+  console.log(
+    'EMAIL SENT SUCCESSFULLY:',
+    result.messageId
+  );
+
+  return result;
 };
 
 module.exports = {
