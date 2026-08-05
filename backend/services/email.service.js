@@ -1,13 +1,19 @@
 const nodemailer = require('nodemailer');
+
 const transporter = nodemailer.createTransport({
   host: 'smtp-relay.brevo.com',
   port: 587,
   secure: false,
+  requireTLS: true,
 
   auth: {
     user: process.env.BREVO_SMTP_LOGIN,
     pass: process.env.BREVO_SMTP_KEY
-  }
+  },
+
+  connectionTimeout: 60000,
+  greetingTimeout: 30000,
+  socketTimeout: 60000
 });
 
 const sendResignationEmail = async ({
@@ -16,13 +22,28 @@ const sendResignationEmail = async ({
   approved,
   exitDate
 }) => {
-
   if (!employeeEmail) {
-    console.log(
-      'EMAIL NOT SENT: Employee email is missing'
+    throw new Error(
+      'Employee email is missing'
     );
+  }
 
-    return;
+  if (!process.env.BREVO_SMTP_LOGIN) {
+    throw new Error(
+      'BREVO_SMTP_LOGIN is missing'
+    );
+  }
+
+  if (!process.env.BREVO_SMTP_KEY) {
+    throw new Error(
+      'BREVO_SMTP_KEY is missing'
+    );
+  }
+
+  if (!process.env.EMAIL_USER) {
+    throw new Error(
+      'EMAIL_USER is missing'
+    );
   }
 
   const subject = approved
@@ -30,51 +51,68 @@ const sendResignationEmail = async ({
     : 'XExit: Your resignation has been rejected';
 
   const message = approved
-    ? `
-Hello ${employeeName},
+    ? `Hello ${employeeName || 'Employee'},
 
 Your resignation request has been approved.
 
-Final exit date: ${exitDate}
+Final exit date: ${exitDate || 'Not specified'}
 
 Thank you for your contribution.
 
 Regards,
-XExit HR Team
-`
-    : `
-Hello ${employeeName},
+XExit HR Team`
+    : `Hello ${employeeName || 'Employee'},
 
 Your resignation request has been rejected.
 
 Please contact HR for more information.
 
 Regards,
-XExit HR Team
-`;
+XExit HR Team`;
 
   try {
+    console.log(
+      'EMAIL SENDING STARTED'
+    );
 
-    const info = await transporter.sendMail({
+    console.log(
+      'RECIPIENT:',
+      employeeEmail
+    );
 
-      from: process.env.EMAIL_USER,
+    const info =
+      await transporter.sendMail({
+        from: {
+          name: 'XExit HR Team',
+          address:
+            process.env.EMAIL_USER
+        },
 
-      to: employeeEmail,
+        to: employeeEmail,
 
-      subject,
+        subject,
 
-      text: message
+        text: message
+      });
 
-    });
+    console.log(
+      'EMAIL SENT SUCCESSFULLY:',
+      {
+        messageId:
+          info.messageId,
 
-    console.log('EMAIL RESULT:');
+        accepted:
+          info.accepted,
 
-    console.log({
-      messageId: info.messageId,
-      accepted: info.accepted,
-      rejected: info.rejected,
-      response: info.response
-    });
+        rejected:
+          info.rejected,
+
+        response:
+          info.response
+      }
+    );
+
+    return info;
 
   } catch (error) {
 
@@ -85,7 +123,6 @@ XExit HR Team
 
     throw error;
   }
-
 };
 
 module.exports = {
