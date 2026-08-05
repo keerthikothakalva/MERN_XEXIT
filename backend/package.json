@@ -20,6 +20,7 @@
     "joi": "^18.0.2",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^6.12.0",
-    "nodemailer": "^9.0.3"
+    "nodemailer": "^9.0.3",
+    "resend": "^6.18.1"
   }
 }
