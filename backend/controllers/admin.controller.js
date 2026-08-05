@@ -141,105 +141,74 @@ const concludeResignation = async (req, res) => {
       });
     }
 
+    const populatedResignation =
+      await resignation.populate(
+        'employeeId'
+      );
+
     const employee =
-  populatedResignation.employeeId;
+      populatedResignation.employeeId;
 
-if (!employee?.email) {
-
-  console.error(
-    'EMAIL NOT SENT: Employee email is missing'
-  );
-
-} else {
-
-  try {
-
-    console.log(
-      'CALLING sendResignationEmail'
-    );
-
-    console.log(
-      'EMAIL RECIPIENT:',
-      employee.email
-    );
-
-    await sendResignationEmail({
-      employeeEmail:
-        employee.email,
-
-      employeeName:
-        employee.username ||
-        'Employee',
-
-      approved,
-
-      exitDate:
-        approved
-          ? exitDate
-          : null
-    });
-
-    console.log(
-      'EMAIL FLOW COMPLETED'
-    );
-
-  } catch (emailError) {
-
-    console.error(
-      'EMAIL ERROR:',
-      emailError.message
-    );
-
-  }
-
-}
-
-return res.status(200).json({
-  message:
-    approved
-      ? 'Resignation approved successfully'
-      : 'Resignation rejected successfully',
-
-  data:
-    populatedResignation
-});
-
+   
     if (!employee?.email) {
+
       console.error(
         'EMAIL NOT SENT: Employee email is missing'
       );
 
-      return;
+    } else {
+
+      try {
+
+        console.log(
+          'CALLING sendResignationEmail'
+        );
+
+        console.log(
+          'EMAIL RECIPIENT:',
+          employee.email
+        );
+
+        await sendResignationEmail({
+          employeeEmail:
+            employee.email,
+
+          employeeName:
+            employee.username ||
+            'Employee',
+
+          approved,
+
+          exitDate:
+            approved
+              ? exitDate
+              : null
+        });
+
+        console.log(
+          'EMAIL FLOW COMPLETED'
+        );
+
+      } catch (emailError) {
+
+        console.error(
+          'EMAIL ERROR:',
+          emailError.message
+        );
+
+      }
     }
 
-    try {
-      await sendResignationEmail({
-        employeeEmail:
-          employee.email,
+    
+    return res.status(200).json({
+      message:
+        approved
+          ? 'Resignation approved successfully'
+          : 'Resignation rejected successfully',
 
-        employeeName:
-          employee.username ||
-          'Employee',
-
-        approved,
-
-        exitDate:
-          approved
-            ? exitDate
-            : null
-      });
-
-      console.log(
-        'EMAIL FLOW COMPLETED'
-      );
-
-    } catch (emailError) {
-
-      console.error(
-        'EMAIL ERROR:',
-        emailError.message
-      );
-    }
+      data:
+        populatedResignation
+    });
 
   } catch (error) {
 
