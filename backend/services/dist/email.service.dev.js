@@ -2,25 +2,14 @@
 
 var nodemailer = require('nodemailer');
 
-var dns = require('dns');
-
 var transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
+  host: 'smtp-relay.brevo.com',
   port: 587,
   secure: false,
-  requireTLS: true,
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASSWORD
-  },
-  lookup: function lookup(hostname, options, callback) {
-    dns.lookup(hostname, {
-      family: 4
-    }, callback);
-  },
-  connectionTimeout: 60000,
-  greetingTimeout: 30000,
-  socketTimeout: 60000
+    user: process.env.BREVO_SMTP_LOGIN,
+    pass: process.env.BREVO_SMTP_KEY
+  }
 });
 
 var sendResignationEmail = function sendResignationEmail(_ref) {
