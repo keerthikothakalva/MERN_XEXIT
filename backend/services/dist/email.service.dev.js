@@ -1,19 +1,7 @@
 "use strict";
 
-var nodemailer = require('nodemailer');
-
-var transporter = nodemailer.createTransport({
-  host: 'smtp-relay.brevo.com',
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.BREVO_SMTP_LOGIN,
-    pass: process.env.BREVO_SMTP_KEY
-  }
-});
-
 var sendResignationEmail = function sendResignationEmail(_ref) {
-  var employeeEmail, employeeName, approved, exitDate, subject, message, info;
+  var employeeEmail, employeeName, approved, exitDate, subject, message, response, result;
   return regeneratorRuntime.async(function sendResignationEmail$(_context) {
     while (1) {
       switch (_context.prev = _context.next) {
@@ -33,37 +21,58 @@ var sendResignationEmail = function sendResignationEmail(_ref) {
           message = approved ? "\nHello ".concat(employeeName, ",\n\nYour resignation request has been approved.\n\nFinal exit date: ").concat(exitDate, "\n\nThank you for your contribution.\n\nRegards,\nXExit HR Team\n") : "\nHello ".concat(employeeName, ",\n\nYour resignation request has been rejected.\n\nPlease contact HR for more information.\n\nRegards,\nXExit HR Team\n");
           _context.prev = 6;
           _context.next = 9;
-          return regeneratorRuntime.awrap(transporter.sendMail({
-            from: process.env.EMAIL_USER,
-            to: employeeEmail,
-            subject: subject,
-            text: message
+          return regeneratorRuntime.awrap(fetch('https://api.brevo.com/v3/smtp/email', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'api-key': process.env.BREVO_API_KEY
+            },
+            body: JSON.stringify({
+              sender: {
+                email: process.env.EMAIL_USER,
+                name: 'XExit HR Team'
+              },
+              to: [{
+                email: employeeEmail,
+                name: employeeName
+              }],
+              subject: subject,
+              textContent: message
+            })
           }));
 
         case 9:
-          info = _context.sent;
-          console.log('EMAIL RESULT:');
-          console.log({
-            messageId: info.messageId,
-            accepted: info.accepted,
-            rejected: info.rejected,
-            response: info.response
-          });
-          _context.next = 18;
+          response = _context.sent;
+          _context.next = 12;
+          return regeneratorRuntime.awrap(response.json());
+
+        case 12:
+          result = _context.sent;
+
+          if (response.ok) {
+            _context.next = 15;
+            break;
+          }
+
+          throw new Error(result.message || 'Brevo email request failed');
+
+        case 15:
+          console.log('EMAIL RESULT:', result);
+          _context.next = 22;
           break;
 
-        case 14:
-          _context.prev = 14;
+        case 18:
+          _context.prev = 18;
           _context.t0 = _context["catch"](6);
           console.error('EMAIL SENDING FAILED:', _context.t0.message);
           throw _context.t0;
 
-        case 18:
+        case 22:
         case "end":
           return _context.stop();
       }
     }
-  }, null, null, [[6, 14]]);
+  }, null, null, [[6, 18]]);
 };
 
 module.exports = {
