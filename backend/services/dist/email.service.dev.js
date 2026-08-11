@@ -34,10 +34,10 @@ var sendResignationEmail = function sendResignationEmail(_ref) {
         case 7:
           subject = approved ? 'XExit: Your resignation has been approved' : 'XExit: Your resignation has been rejected';
           textContent = approved ? "Hello ".concat(employeeName || 'Employee', ",\n\nYour resignation request has been approved.\n\nFinal exit date: ").concat(exitDate || 'Not specified', "\n\nThank you for your contribution.\n\nRegards,\nXExit HR Team") : "Hello ".concat(employeeName || 'Employee', ",\n\nYour resignation request has been rejected.\n\nPlease contact HR for more information.\n\nRegards,\nXExit HR Team");
-          console.log('Sending resignation email...');
-          console.log('To:', employeeEmail);
-          console.log('Approved:', approved);
-          _context.prev = 12;
+          console.log('SENDING RESIGNATION EMAIL');
+          console.log('TO:', employeeEmail);
+          console.log('APPROVED:', approved);
+          console.log('FROM:', process.env.BREVO_FROM_EMAIL);
           _context.next = 15;
           return regeneratorRuntime.awrap(fetch('https://api.brevo.com/v3/smtp/email', {
             method: 'POST',
@@ -88,21 +88,15 @@ var sendResignationEmail = function sendResignationEmail(_ref) {
           throw new Error(result.message || "Brevo API failed with status ".concat(response.status));
 
         case 25:
-          console.log('EMAIL SENT SUCCESSFULLY:', result.messageId);
+          console.log('EMAIL ACCEPTED BY BREVO:', result.messageId);
           return _context.abrupt("return", result);
 
-        case 29:
-          _context.prev = 29;
-          _context.t0 = _context["catch"](12);
-          console.error('BREVO EMAIL FAILED:', _context.t0.message);
-          throw _context.t0;
-
-        case 33:
+        case 27:
         case "end":
           return _context.stop();
       }
     }
-  }, null, null, [[12, 29]]);
+  });
 };
 
 module.exports = {
