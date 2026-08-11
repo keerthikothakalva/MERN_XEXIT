@@ -161,8 +161,13 @@ const concludeResignation = async (req, res) => {
       try {
 
         console.log(
-          'CALLING sendResignationEmail'
-        );
+  'CALLING sendResignationEmail',
+  {
+    email: employee.email,
+    approved,
+    exitDate
+  }
+);
 
         console.log(
           'EMAIL RECIPIENT:',
@@ -170,24 +175,14 @@ const concludeResignation = async (req, res) => {
         );
 
         await sendResignationEmail({
-          employeeEmail:
-            employee.email,
+  employeeEmail: employee.email,
+  employeeName: employee.username || 'Employee',
+  approved,
+  exitDate: approved ? exitDate : null
+});
 
-          employeeName:
-            employee.username ||
-            'Employee',
+console.log('EMAIL FLOW COMPLETED');
 
-          approved,
-
-          exitDate:
-            approved
-              ? exitDate
-              : null
-        });
-
-        console.log(
-          'EMAIL FLOW COMPLETED'
-        );
 
       } catch (emailError) {
 
