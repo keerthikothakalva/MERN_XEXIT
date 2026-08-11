@@ -10,6 +10,10 @@ require('dotenv').config();
 
 var app = express();
 var PORT = process.env.PORT || 3001;
+
+var _require = require('./services/email.service.js'),
+    verifyEmailConnection = _require.verifyEmailConnection;
+
 app.use(cors());
 app.use(express.json());
 app.get('/', function (req, res) {
@@ -30,6 +34,7 @@ app.use('/api/admin', adminRouter);
 connectMongoDB();
 app.listen(PORT, function () {
   console.log("Backend is listening on PORT ".concat(PORT));
+  verifyEmailConnection();
 });
 module.exports = app;
 //# sourceMappingURL=index.dev.js.map
