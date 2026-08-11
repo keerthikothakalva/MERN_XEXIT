@@ -12,9 +12,6 @@ const ResignInfo = require(
 
 const isDBConnected = () => mongoose.connection.readyState === 1;
 
-// =====================
-// LWD VALIDATION
-// =====================
 
 const validateLastWorkingDay =
   async (lwd) => {
@@ -22,7 +19,7 @@ const validateLastWorkingDay =
     const selectedDate =
       new Date(`${lwd}T00:00:00`);
 
-    // Check invalid date
+
     if (
       Number.isNaN(
         selectedDate.getTime()
@@ -35,7 +32,6 @@ const validateLastWorkingDay =
       };
     }
 
-    // Check Saturday and Sunday
     const day =
       selectedDate.getDay();
 
@@ -131,8 +127,6 @@ const registerNewUser = async (req, res) => {
     } = req.body || {};
 
 
-    // Email is optional for now
-    // so existing Cypress tests remain compatible.
 
     if (!username || !password) {
 
@@ -144,11 +138,6 @@ const registerNewUser = async (req, res) => {
       });
 
     }
-
-
-    // =====================
-    // MEMORY STORE
-    // =====================
 
     if (!isDBConnected()) {
 
@@ -197,10 +186,6 @@ const registerNewUser = async (req, res) => {
 
     }
 
-
-    // =====================
-    // MONGODB
-    // =====================
 
     const existingUser =
       await allEmployeeLogics

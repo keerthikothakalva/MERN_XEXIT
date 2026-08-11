@@ -5,7 +5,7 @@ require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
-const {verifyEmailConnection} = require('./services/email.service.js');
+
 
 app.use(cors());
 app.use(express.json());
@@ -27,7 +27,7 @@ connectMongoDB();
 
 app.listen(PORT, () => {
   console.log(`Backend is listening on PORT ${PORT}`);
-  verifyEmailConnection();
+ 
 });
 
 module.exports = app;
