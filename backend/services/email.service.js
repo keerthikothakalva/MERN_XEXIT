@@ -1,44 +1,53 @@
+const nodemailer = require("nodemailer");
+
+const transporter = nodemailer.createTransport({
+  host: "smtp-relay.brevo.com",
+  port: 587,
+  secure: false,
+
+  auth: {
+    user: process.env.BREVO_SMTP_LOGIN,
+    pass: process.env.BREVO_SMTP_KEY,
+  },
+});
+
+const verifyEmailConnection = async () => {
+  try {
+    await transporter.verify();
+
+    console.log("Brevo SMTP connection successful");
+  } catch (error) {
+    console.error("Brevo SMTP connection failed:");
+    console.error(error);
+  }
+};
+
 const sendResignationEmail = async ({
   employeeEmail,
   employeeName,
   approved,
-  exitDate
+  exitDate,
 }) => {
-
-  if (!process.env.BREVO_API_KEY) {
-    throw new Error(
-      'BREVO_API_KEY is missing in Render'
-    );
-  }
-
-  if (!process.env.EMAIL_USER) {
-    throw new Error(
-      'EMAIL_USER is missing in Render'
-    );
-  }
-
   if (!employeeEmail) {
-    throw new Error(
-      'Employee email is missing'
-    );
+    throw new Error("Employee email is missing");
   }
 
   const subject = approved
-    ? 'XExit: Your resignation has been approved'
-    : 'XExit: Your resignation has been rejected';
+    ? "XExit: Your resignation has been approved"
+    : "XExit: Your resignation has been rejected";
 
   const textContent = approved
-    ? `Hello ${employeeName || 'Employee'},
+    ? `Hello ${employeeName || "Employee"},
 
 Your resignation request has been approved.
 
-Final exit date: ${exitDate || 'Not specified'}
+Final exit date: ${exitDate || "Not specified"}
 
 Thank you for your contribution.
 
 Regards,
 XExit HR Team`
-    : `Hello ${employeeName || 'Employee'},
+    : `Hello ${employeeName || "Employee"},
 
 Your resignation request has been rejected.
 
@@ -47,106 +56,40 @@ Please contact HR for more information.
 Regards,
 XExit HR Team`;
 
-console.log(
-  'BREVO_API_KEY LOADED:',
-  Boolean(process.env.BREVO_API_KEY)
-);
-
-console.log(
-  'SENDING TO:',
-  employeeEmail
-);
-
-  const response = await fetch(
-    'https://api.brevo.com/v3/smtp/email',
-    {
-      method: 'POST',
-
-      headers: {
-        accept: 'application/json',
-
-        'content-type':
-          'application/json',
-
-        'api-key':
-          process.env.BREVO_API_KEY
-      },
-
-      body: JSON.stringify({
-        sender: {
-          email:
-            process.env.EMAIL_USER,
-
-          name:
-            'XExit HR Team'
-        },
-
-        to: [
-          {
-            email:
-              employeeEmail,
-
-            name:
-              employeeName ||
-              'Employee'
-          }
-        ],
-
-        subject,
-
-        textContent
-      })
-    }
-  );
-
-  const responseText =
-    await response.text();
-
-  let result;
-
   try {
-    result =
-      responseText
-        ? JSON.parse(responseText)
-        : {};
-  } catch {
-    result = {
-      rawResponse:
-        responseText
-    };
+    console.log("Sending resignation email...");
+    console.log("SENDING TO:", employeeEmail);
+    console.log("APPROVED:", approved);
+
+    const info = await transporter.sendMail({
+      from: `"${process.env.BREVO_FROM_NAME}" <${process.env.BREVO_FROM_EMAIL}>`,
+
+      to: employeeEmail,
+
+      subject,
+
+      text: textContent,
+    });
+
+    console.log("EMAIL SENT SUCCESSFULLY");
+
+    console.log({
+      messageId: info.messageId,
+      accepted: info.accepted,
+      rejected: info.rejected,
+      response: info.response,
+    });
+
+    return info;
+  } catch (error) {
+    console.error("EMAIL SENDING FAILED:");
+    console.error(error);
+
+    throw error;
   }
-
-  console.log(
-    'BREVO STATUS:',
-    response.status
-  );
-
-  console.log(
-    'BREVO RESPONSE:',
-    result
-  );
-
-  if (!response.ok) {
-    throw new Error(
-      result.message ||
-      `Brevo API failed with status ${response.status}`
-    );
-  }
-
-  if (!result.messageId) {
-    throw new Error(
-      'Brevo accepted the request but returned no messageId'
-    );
-  }
-
-  console.log(
-    'EMAIL ACCEPTED BY BREVO:',
-    result.messageId
-  );
-
-  return result;
 };
 
 module.exports = {
-  sendResignationEmail
+  sendResignationEmail,
+  verifyEmailConnection,
 };
