@@ -1,18 +1,4 @@
-const testResponse = await fetch(
-  'https://api.brevo.com/v3/account',
-  {
-    method: 'GET',
-    headers: {
-      accept: 'application/json',
-      'api-key': process.env.BREVO_API_KEY
-    }
-  }
-);
-
-const testText = await testResponse.text();
-
-console.log('BREVO ACCOUNT TEST STATUS:', testResponse.status);
-console.log('BREVO ACCOUNT TEST RESPONSE:', testText);const sendResignationEmail = async ({
+const sendResignationEmail = async ({
   employeeEmail,
   employeeName,
   approved,
